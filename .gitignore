@@ -1,0 +1,4 @@
+model/
+workspace/
+__pycache__/
+*.pyc

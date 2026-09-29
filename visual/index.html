@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Model Inside</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #0f1420; overflow: hidden; font-family: "Segoe UI", system-ui, sans-serif; }
+  canvas { display: block; width: 100vw; height: 100vh; }
+  #bar { position: fixed; top: 12px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; align-items: center;
+         background: rgba(26, 34, 51, .94); border: 1px solid #2c3a55; border-radius: 10px; padding: 8px 10px;
+         color: #8a97ad; font-size: 13px; max-width: calc(100vw - 32px); box-sizing: border-box; }
+  #bar input { width: 320px; max-width: 45vw; background: #0f1420; border: 1px solid #2c3a55; color: #e6edf7;
+               border-radius: 6px; padding: 6px 8px; font-size: 14px; }
+  #bar button { background: #4cc9f0; color: #0f1420; border: 0; border-radius: 6px; padding: 6px 12px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+  #status { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="bar">
+  <span>Prompt</span><input id="q" value="What is currency?"><button id="go">Run model</button><span id="status">loading…</span>
+</div>
+<script>
+// Everything is drawn on one canvas in a fixed 1600 x 900 "virtual" space, scaled to fit the window.
+const cv = document.getElementById("c"), ctx = cv.getContext("2d");
+const W = 1600, H = 900;
+const C = { bg: "#0f1420", panel: "#1a2233", edge: "#2c3a55", text: "#e6edf7", muted: "#8a97ad",
+            harness: "#4cc9f0", server: "#f7b267", model: "#b388ff", tensor: "#7bd88f", arrow: "#9aa7bd", hot: "#ff6b6b" };
+let scale = 1, ox = 0, oy = 0, step = 0, data = null, now = 0, buttons = [];
+
+// ---------- drawing helpers ----------
+function font(size, weight = 400, mono = false) {
+  ctx.font = `${weight} ${size}px ${mono ? "Consolas, 'Cascadia Mono', monospace" : "'Segoe UI', system-ui, sans-serif"}`;
+}
+function text(s, x, y, { size = 18, color = C.text, weight = 400, align = "left", mono = false } = {}) {
+  font(size, weight, mono); ctx.fillStyle = color; ctx.textAlign = align; ctx.textBaseline = "alphabetic"; ctx.fillText(s, x, y);
+}
+function wrap(s, x, y, maxW, { size = 17, color = C.muted, lh = 25 } = {}) {
+  font(size); ctx.fillStyle = color; ctx.textAlign = "left";
+  let line = "";
+  for (const w of s.split(" ")) {
+    const t = line ? line + " " + w : w;
+    if (ctx.measureText(t).width > maxW && line) { ctx.fillText(line, x, y); y += lh; line = w; } else line = t;
+  }
+  if (line) ctx.fillText(line, x, y);
+}
+function rr(x, y, w, h, r = 12) { ctx.beginPath(); ctx.roundRect(x, y, w, h, r); }
+function box(x, y, w, h, title, lines = [], color = C.model, sub = "") {
+  rr(x, y, w, h); ctx.fillStyle = C.panel; ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = color; ctx.stroke();
+  text(title, x + 16, y + 32, { size: 20, weight: 700, color });
+  if (sub) text(sub, x + 16, y + 54, { size: 13, color: C.muted, mono: true });
+  lines.forEach((l, i) => text(l, x + 16, y + (sub ? 84 : 62) + i * 25, { size: 16, mono: l.startsWith(" ") }));
+}
+// A polyline arrow with a dot flowing along it (the "data moving" animation).
+function path(pts, { color = C.arrow, label = "", at = null, dash = false, flow = true, lw = 2.5 } = {}) {
+  ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = lw; ctx.setLineDash(dash ? [8, 6] : []);
+  ctx.beginPath(); ctx.moveTo(...pts[0]); pts.slice(1).forEach(p => ctx.lineTo(...p)); ctx.stroke(); ctx.setLineDash([]);
+  const [xa, ya] = pts[pts.length - 2], [xb, yb] = pts[pts.length - 1], a = Math.atan2(yb - ya, xb - xa);
+  ctx.beginPath(); ctx.moveTo(xb, yb);
+  ctx.lineTo(xb - 14 * Math.cos(a - 0.4), yb - 14 * Math.sin(a - 0.4));
+  ctx.lineTo(xb - 14 * Math.cos(a + 0.4), yb - 14 * Math.sin(a + 0.4)); ctx.closePath(); ctx.fill();
+  if (flow) {
+    const segs = pts.slice(1).map((p, i) => Math.hypot(p[0] - pts[i][0], p[1] - pts[i][1]));
+    let d = (now * 0.18 + pts[0][0] * 3 + pts[0][1]) % segs.reduce((s, v) => s + v, 0);
+    for (let i = 0; i < segs.length; i++) {
+      if (d <= segs[i]) {
+        const f = d / segs[i], [x1, y1] = pts[i], [x2, y2] = pts[i + 1];
+        ctx.beginPath(); ctx.arc(x1 + (x2 - x1) * f, y1 + (y2 - y1) * f, 5, 0, 7); ctx.fill(); break;
+      }
+      d -= segs[i];
+    }
+  }
+  if (label) {
+    const [lx, ly] = at || [(pts[0][0] + pts[1][0]) / 2, (pts[0][1] + pts[1][1]) / 2 - 10];
+    text(label, lx, ly, { size: 14, color: C.muted, align: "center" });
+  }
+}
+const arrow = (x1, y1, x2, y2, o) => path([[x1, y1], [x2, y2]], o);
+const show = s => s.replace(/ /g, "·").replace(/\n/g, "↵");
+function valueColor(v) {           // blue = negative, red = positive, brighter = bigger
+  const t = Math.max(-1, Math.min(1, v / 0.12));
+  return t >= 0 ? `rgba(255,107,107,${0.15 + 0.85 * t})` : `rgba(76,201,240,${0.15 - 0.85 * t})`;
+}
+function needData(x, y) { text("Press “Run model” to see live numbers from your GPU.", x, y, { size: 16, color: C.hot }); }
+// Every model-specific number comes from the server (config.json + the safetensors file), so any model works.
+const A = () => (data && data.arch) || { name: "…", vocab: "…", hidden: "…", layers: "…", heads: "…", kv_heads: "…", tensors: "…", layer0: {} };
+const fmt = v => typeof v === "number" ? v.toLocaleString("en-US") : v;
+const shape = key => { const s = A().layer0[key]; return s ? s.join("×") : "…"; };
+
+// ---------- the scenes ----------
+const scenes = [
+  {
+    title: "0 · The whole system: harness → server → model",
+    caption: "The HARNESS decides which tokens go in and what to do with the reply. The SERVER only runs the maths. " +
+             "The MODEL FILES are just numbers plus a blueprint — loaded once when the server starts, never again.",
+    draw() {
+      box(60, 300, 190, 160, "You", ["terminal", " python", " qwen3_harness.py"], C.muted);
+      box(330, 250, 340, 270, "qwen3_harness.py", ["system prompt (WHO)", "messages[] = memory", "--system, --no-think", "prints the stream", "no torch → starts fast"], C.harness, "HARNESS");
+      box(830, 220, 390, 330, "qwen3_server.py", ["1. chat template", "2. tokenizer → token IDs", `3. model(IDs) → ${fmt(A().vocab)} scores`, "4. pick 1 token, repeat", "5. streamer → send text", "runs on your RTX 4070 SUPER"], C.server, "SERVER · http://127.0.0.1:8000");
+      box(1300, 220, 250, 330, "model files", ["config.json", " → the shape", "model.safetensors", ` → ${fmt(A().tensors)} tensors`, "tokenizer.json", "tokenizer_config.json", " → chat template"], C.model, `model/${A().name}`);
+      arrow(250, 360, 330, 360, { label: "question" });
+      arrow(330, 410, 250, 410, { color: C.tensor, label: "answer", at: [290, 436] });
+      arrow(670, 330, 830, 330, { color: C.harness, label: "POST {messages}" });
+      arrow(830, 450, 670, 450, { color: C.tensor, label: "text pieces (stream)", at: [750, 476] });
+      arrow(1300, 385, 1220, 385, { color: C.model, dash: true, label: "loaded once", at: [1260, 370] });
+      path([[600, 520], [600, 600], [400, 600], [400, 520]], { color: C.harness, label: "append reply to messages[] → sent again next time", at: [500, 628] });
+      text("The model remembers nothing. Memory = the harness re-sending messages[].", 330, 690, { size: 17, color: C.harness });
+    },
+  },
+  {
+    title: "1 · Tokenizer: text → token IDs",
+    caption: "You only typed your prompt. The server's chat template wraps it with hidden marker tokens so the model knows who is speaking, " +
+             "then tokenizer.json turns everything into numbers. Orange chips are special tokens; the cyan chip is the last token of YOUR text.",
+    draw() {
+      box(60, 150, 440, 150, "Your prompt", [], C.harness, "sent by qwen3_harness.py");
+      text(data ? `“${document.getElementById("q").value.slice(0, 34)}”` : "“…”", 76, 262, { size: 20 });
+      arrow(500, 225, 580, 225, {});
+      box(580, 150, 960, 150, "Chat template (added by the server)", [], C.server, "tokenizer_config.json");
+      [" <|im_start|>system  You are a friendly teacher…<|im_end|>", " <|im_start|>user  {your prompt}<|im_end|>",
+       " <|im_start|>assistant  ← the model continues from here"].forEach((l, i) => text(l, 596, 232 + i * 22, { size: 15, mono: true }));
+      arrow(1060, 300, 1060, 350, { label: "tokenizer.json", at: [1140, 332] });
+      if (!data) return needData(60, 400);
+      text(`input_ids shape (${data.shapes.input_ids.join(", ")}) — ${data.tokens.length} tokens`, 60, 382, { size: 16, color: C.tensor, mono: true });
+      let x = 60, y = 400;
+      data.tokens.forEach((t, i) => {
+        const label = show(t.text), special = t.text.startsWith("<|");
+        font(15, 400, true); const w = Math.max(ctx.measureText(label).width, ctx.measureText(String(t.id)).width) + 18;
+        if (x + w > 1540) { x = 60; y += 58; }
+        if (y > 740) return;
+        rr(x, y, w, 50, 8); ctx.fillStyle = C.panel; ctx.fill(); ctx.lineWidth = i === data.focus ? 3 : 1.5;
+        ctx.strokeStyle = i === data.focus ? C.harness : special ? C.server : C.edge; ctx.stroke();
+        text(label, x + 9, y + 21, { size: 15, mono: true, color: special ? C.server : C.text });
+        text(String(t.id), x + 9, y + 42, { size: 13, mono: true, color: C.muted });
+        x += w + 8;
+      });
+    },
+  },
+  {
+    title: () => `2 · Embedding lookup: token ID → ${fmt(A().hidden)} numbers`,
+    caption: () => `A token ID is just a ROW NUMBER, and that row's ${fmt(A().hidden)} learned numbers are what the model understands by that token. ` +
+             `Every token gets its row, so the whole prompt becomes a tensor of shape (1, tokens, ${fmt(A().hidden)}). Blue = negative, red = positive.`,
+    draw() {
+      const tok = data ? data.tokens[data.focus] : { id: 0, text: "?" };
+      rr(60, 400, 250, 110, 10); ctx.fillStyle = C.panel; ctx.fill(); ctx.strokeStyle = C.harness; ctx.lineWidth = 2; ctx.stroke();
+      text("token", 80, 432, { size: 14, color: C.muted });
+      text(show(tok.text), 80, 468, { size: 24, weight: 700, mono: true, color: C.harness });
+      text(`ID ${tok.id}`, 80, 496, { size: 16, mono: true });
+      // the embedding table
+      const vocab = typeof A().vocab === "number" ? A().vocab : 1;
+      const tx = 420, ty = 190, tw = 380, th = 560, rowY = Math.max(ty + 6, Math.min(ty + th - 6, ty + th * tok.id / vocab));
+      ctx.fillStyle = C.panel; ctx.fillRect(tx, ty, tw, th); ctx.strokeStyle = C.model; ctx.lineWidth = 2; ctx.strokeRect(tx, ty, tw, th);
+      ctx.strokeStyle = "rgba(179,136,255,.12)"; ctx.lineWidth = 1;
+      for (let r = ty + 12; r < ty + th; r += 12) { ctx.beginPath(); ctx.moveTo(tx, r); ctx.lineTo(tx + tw, r); ctx.stroke(); }
+      ctx.fillStyle = C.harness; ctx.fillRect(tx, rowY - 4, tw, 8);
+      text("model.embed_tokens.weight", tx, ty - 34, { size: 17, weight: 700, color: C.model, mono: true });
+      text(`shape (${fmt(A().vocab)}, ${fmt(A().hidden)}): one row per token`, tx, ty - 12, { size: 14, color: C.muted });
+      text("row 0", tx - 10, ty + 14, { size: 12, color: C.muted, align: "right" });
+      text(`row ${fmt(vocab - 1)}`, tx - 10, ty + th, { size: 12, color: C.muted, align: "right" });
+      path([[310, 455], [365, 455], [365, rowY], [tx, rowY]], { color: C.harness, label: "row = ID", at: [340, Math.min(455, rowY) - 12] });
+      arrow(tx + tw, rowY, 900, 430, { color: C.harness });
+      // the vector
+      text(`embedding of “${show(tok.text)}” — first 16 of ${fmt(A().hidden)} numbers`, 900, 380, { size: 16, weight: 600 });
+      if (!data) return needData(900, 470);
+      data.embedding.forEach((v, i) => {
+        const x = 900 + (i % 8) * 80, y = 400 + Math.floor(i / 8) * 70;
+        rr(x, y, 72, 58, 6); ctx.fillStyle = valueColor(v); ctx.fill();
+        text(v.toFixed(3), x + 36, y + 35, { size: 14, mono: true, align: "center" });
+      });
+      text(`… ${fmt(A().hidden - 16)} more numbers  →  vector shape (${A().hidden},)`, 900, 575, { size: 15, color: C.muted, mono: true });
+      text(`all tokens together → hidden (${data.shapes.hidden.join(", ")})`, 900, 640, { size: 17, color: C.tensor, mono: true });
+    },
+  },
+  {
+    title: () => `3 · One transformer layer (× ${A().layers})`,
+    caption: () => {
+      const per = Object.keys(A().layer0).length, other = A().tensors - per * A().layers;
+      return "Attention MIXES information between tokens (each token looks at the ones before it). The MLP then transforms each token on its own " +
+             `and holds much of the model's knowledge. “+” adds the original back (residual). ${per} tensors per layer × ${A().layers} layers + ${other} others = ${A().tensors}.`;
+    },
+    draw() {
+      const cy = 440, qk = "self_attn.q_norm.weight" in A().layer0;   // QK-norm: newer models normalise q and k too
+      text("x", 70, cy + 6, { size: 20, weight: 700, mono: true, color: C.tensor });
+      arrow(90, cy, 120, cy, {});
+      box(115, cy - 45, 130, 90, "RMSNorm", [], C.muted, `(${A().hidden},)`);
+      arrow(245, cy, 272, cy, {});
+      box(272, cy - 170, 290, 340, "Attention", [` q_proj ${shape("self_attn.q_proj.weight")}`, ` k_proj ${shape("self_attn.k_proj.weight")}`,
+          ` v_proj ${shape("self_attn.v_proj.weight")}`, ` o_proj ${shape("self_attn.o_proj.weight")}`,
+          ...(qk ? [` q_norm, k_norm ${shape("self_attn.q_norm.weight")}`, "(QK-norm)"] : ["tokens look at", "earlier tokens"]),
+          `${A().heads} query heads`, `${A().kv_heads} shared key/value`], C.harness, "self_attn");
+      arrow(562, cy, 596, cy, {});
+      ctx.beginPath(); ctx.arc(612, cy, 16, 0, 7); ctx.fillStyle = C.panel; ctx.fill(); ctx.strokeStyle = C.tensor; ctx.lineWidth = 2; ctx.stroke();
+      text("+", 612, cy + 7, { size: 22, weight: 700, align: "center", color: C.tensor });
+      arrow(628, cy, 660, cy, {});
+      box(660, cy - 45, 130, 90, "RMSNorm", [], C.muted, `(${A().hidden},)`);
+      arrow(790, cy, 812, cy, {});
+      box(812, cy - 170, 290, 340, "MLP", [` gate_proj ${shape("mlp.gate_proj.weight")}`, ` up_proj   ${shape("mlp.up_proj.weight")}`,
+          " SiLU(gate) × up", ` down_proj ${shape("mlp.down_proj.weight")}`,
+          "each token on its own", "stores much of the", "“knowledge”"], C.server, "mlp");
+      arrow(1102, cy, 1136, cy, {});
+      ctx.beginPath(); ctx.arc(1152, cy, 16, 0, 7); ctx.fillStyle = C.panel; ctx.fill(); ctx.strokeStyle = C.tensor; ctx.stroke();
+      text("+", 1152, cy + 7, { size: 22, weight: 700, align: "center", color: C.tensor });
+      arrow(1168, cy, 1215, cy, { label: "next layer", at: [1190, cy - 14] });
+      path([[100, cy], [100, 230], [612, 230], [612, cy - 16]], { color: C.tensor, dash: true, label: "residual: keep the original", at: [356, 220] });
+      path([[640, cy], [640, 660], [1152, 660], [1152, cy + 16]], { color: C.tensor, dash: true, label: "residual", at: [896, 688] });
+      // live: how big the last token's vector is after each layer
+      text("vector size after each layer (live)", 1260, 160, { size: 15, weight: 600 });
+      text("grows layer by layer; the final norm shrinks it", 1260, 180, { size: 12, color: C.muted });
+      if (!data) return needData(1260, 220);
+      const max = Math.max(...data.layer_sizes);
+      data.layer_sizes.forEach((v, i) => {
+        const y = 196 + i * 18.5;
+        const last = i === data.layer_sizes.length - 1;
+        text(i === 0 ? "emb" : last ? "norm" : String(i), 1290, y + 12, { size: 11, color: C.muted, align: "right", mono: true });
+        ctx.fillStyle = i === 0 ? C.harness : last ? C.server : C.tensor; ctx.fillRect(1298, y + 2, 230 * v / max, 12);
+      });
+    },
+  },
+  {
+    title: () => `4 · From ${fmt(A().hidden)} numbers to the next token`,
+    caption: () => `The model never outputs words — only ${fmt(A().vocab)} scores, one per token in the vocabulary. The same embedding table is reused to score them ` +
+             "(tie_word_embeddings: true). Settings — sampling temperature, thinking on/off, max_new_tokens — only change how one token is picked from these.",
+    draw() {
+      box(60, 380, 200, 110, "last token", [], C.tensor, `vector (${A().hidden},)`);
+      arrow(260, 435, 310, 435, {});
+      box(310, 380, 180, 110, "model.norm", [], C.muted, "final RMSNorm");
+      arrow(490, 435, 540, 435, {});
+      box(540, 320, 320, 230, "lm_head", ["= embed_tokens.weight", "  (the SAME table,", "   used backwards)", ` ${fmt(A().hidden)} → ${fmt(A().vocab)} scores`], C.model, "tied embeddings");
+      arrow(860, 435, 910, 435, {});
+      box(910, 380, 190, 110, "softmax", [], C.server, "scores → probabilities");
+      arrow(1100, 435, 1150, 435, {});
+      text("top 8 next tokens (live)", 1150, 190, { size: 15, weight: 600 });
+      if (!data) return needData(1150, 230);
+      data.top.forEach((t, i) => {
+        const y = 210 + i * 58;
+        rr(1150, y, 390, 48, 8); ctx.fillStyle = C.panel; ctx.fill(); ctx.strokeStyle = i === 0 ? C.harness : C.edge; ctx.lineWidth = i === 0 ? 3 : 1; ctx.stroke();
+        ctx.fillStyle = i === 0 ? "rgba(76,201,240,.35)" : "rgba(123,216,143,.22)"; ctx.fillRect(1152, y + 2, 386 * t.prob, 44);
+        text(show(t.text).slice(0, 18), 1164, y + 30, { size: 16, mono: true });
+        text(`${(t.prob * 100).toFixed(1)}%`, 1528, y + 30, { size: 15, mono: true, align: "right", color: C.muted });
+      });
+      text(`logits shape (${data.shapes.logits.join(", ")})`, 540, 610, { size: 15, mono: true, color: C.tensor });
+      path([[1150, 234], [1120, 234], [1120, 700], [160, 700], [160, 490]], { color: C.harness,
+            label: "sampling: pick a likely token (temperature 0.6), append it, run everything again", at: [640, 728] });
+    },
+  },
+  {
+    title: "5 · The generation loop and streaming",
+    caption: "One lap of this loop = one token. Thinking makes answers much longer (a <think> section can be 600+ laps), which is why reasoning is slower " +
+             "but more accurate. Streaming doesn't make the loop faster; it just sends each lap's token out immediately.",
+    draw() {
+      const cx = 480, cy = 450, r = 210;
+      const nodes = [["tokens so far", C.harness, -90], [`${A().layers} layers`, C.model, 0], [`${fmt(A().vocab)} scores`, C.server, 90], ["pick 1 token", C.tensor, 180]];
+      ctx.strokeStyle = C.edge; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(cx, cy, r, 0, 7); ctx.stroke();
+      const a = now / 700; ctx.fillStyle = C.harness; ctx.beginPath(); ctx.arc(cx + r * Math.cos(a), cy + r * Math.sin(a), 7, 0, 7); ctx.fill();
+      nodes.forEach(([label, color, deg]) => {
+        const x = cx + r * Math.cos(deg * Math.PI / 180), y = cy + r * Math.sin(deg * Math.PI / 180);
+        rr(x - 95, y - 30, 190, 60, 10); ctx.fillStyle = C.panel; ctx.fill(); ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.stroke();
+        text(label, x, y + 6, { size: 17, weight: 600, align: "center", color });
+      });
+      text("1 lap = 1 token", cx, cy - 6, { size: 22, weight: 700, align: "center" });
+      text("1 forward pass", cx, cy + 24, { size: 16, align: "center", color: C.muted });
+      text("append the new token ↺", cx, cy + 290, { size: 15, align: "center", color: C.muted });
+      // streaming out
+      path([[cx - r - 95, cy], [120, cy], [120, 180], [820, 180]], { color: C.tensor, label: "each new token", at: [470, 170] });
+      box(820, 130, 300, 100, "TextIteratorStreamer", [], C.server, "tokens → text pieces");
+      arrow(1120, 180, 1180, 180, { color: C.tensor });
+      box(1180, 130, 360, 100, "HTTP chunk → harness", [], C.harness, "wfile.write + flush");
+      arrow(1360, 230, 1360, 300, { color: C.tensor });
+      box(1180, 300, 360, 100, "qwen3_harness.py prints", [], C.harness, "read1() + flush=True");
+      box(900, 520, 640, 170, "The loop stops when…", ["the model picks <|im_end|>", "or max_new_tokens (2048) is reached",
+          "→ both are HARNESS / server decisions, not the model's"], C.hot);
+    },
+  },
+];
+
+// ---------- frame loop, navigation, data ----------
+function resize() {
+  const d = devicePixelRatio || 1;
+  cv.width = innerWidth * d; cv.height = innerHeight * d;
+  scale = Math.min(innerWidth / W, innerHeight / H); ox = (innerWidth - W * scale) / 2; oy = (innerHeight - H * scale) / 2;
+}
+function button(x, y, w, h, label, fn, active = true) {
+  rr(x, y, w, h, 8); ctx.fillStyle = active ? C.panel : "transparent"; ctx.fill(); ctx.strokeStyle = active ? C.harness : C.edge; ctx.lineWidth = 1.5; ctx.stroke();
+  text(label, x + w / 2, y + h / 2 + 6, { size: 16, align: "center", color: active ? C.text : C.muted });
+  if (active) buttons.push({ x, y, w, h, fn });
+}
+function frame(t) {
+  now = t; buttons = [];
+  const d = devicePixelRatio || 1;
+  ctx.setTransform(d, 0, 0, d, 0, 0); ctx.fillStyle = C.bg; ctx.fillRect(0, 0, innerWidth, innerHeight);
+  ctx.setTransform(d * scale, 0, 0, d * scale, d * ox, d * oy);
+  const s = scenes[step];
+  const val = v => typeof v === "function" ? v() : v;          // titles/captions can depend on the live model
+  text(val(s.title), 60, 110, { size: 30, weight: 700 });
+  s.draw();
+  wrap(val(s.caption), 60, 808, 1480);
+  button(60, 852, 130, 38, "← Back", () => go(-1), step > 0);
+  button(1410, 852, 130, 38, "Next →", () => go(1), step < scenes.length - 1);
+  scenes.forEach((_, i) => { ctx.beginPath(); ctx.arc(800 - (scenes.length - 1) * 14 + i * 28, 871, i === step ? 7 : 5, 0, 7);
+                             ctx.fillStyle = i === step ? C.harness : C.edge; ctx.fill(); });
+  requestAnimationFrame(frame);
+}
+function go(dir) { step = Math.max(0, Math.min(scenes.length - 1, step + dir)); history.replaceState(null, "", "#" + step); }
+step = Math.max(0, Math.min(scenes.length - 1, parseInt(location.hash.slice(1)) || 0));   // e.g. /#3 opens step 3
+cv.addEventListener("click", e => {
+  const x = (e.clientX - ox) / scale, y = (e.clientY - oy) / scale;
+  const b = buttons.find(b => x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h); if (b) b.fn();
+});
+addEventListener("keydown", e => { if (e.target.tagName === "INPUT") return; if (e.key === "ArrowRight") go(1); if (e.key === "ArrowLeft") go(-1); });
+addEventListener("resize", resize);
+
+const status = s => document.getElementById("status").textContent = s;
+async function run() {
+  status("running on GPU…");
+  try {
+    data = await (await fetch("/inspect?text=" + encodeURIComponent(document.getElementById("q").value))).json();
+    status(`${data.arch.name} · ${fmt(data.arch.params)} params · ${data.tokens.length} tokens · ${data.ms} ms · ←/→ to move`);
+  } catch (e) { status("server not reachable — is qwen3_server.py running?"); }
+}
+document.getElementById("go").onclick = run;
+document.getElementById("q").addEventListener("keydown", e => { if (e.key === "Enter") run(); });
+resize(); requestAnimationFrame(frame); run();
+</script>
+</body>
+</html>
