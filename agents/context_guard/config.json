@@ -1,0 +1,11 @@
+{
+  "agent": "context_guard",
+  "model": "prompt_injection_guard_small",
+  "device": "cuda",
+  "gpu_gb": 1.0,
+  "threshold": 0.5,
+  "window": 2048,
+  "injection_label": 1,
+  "blocked_reason": "possible prompt injection",
+  "batch": 4
+}

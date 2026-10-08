@@ -1,0 +1,6 @@
+{
+  "stream_suffix": ".stream.txt",
+  "file_pattern": "[A-Za-z0-9_-]{1,64}\\.[A-Za-z0-9]{1,8}",
+  "no_token": "sign in first",
+  "not_yours": "that session belongs to someone else"
+}

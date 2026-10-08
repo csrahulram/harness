@@ -1,0 +1,62 @@
+[
+  {
+    "case": "identity",
+    "reply": "I'm Alex, the owner of a design studio in Lisbon. I help businesses grow.",
+    "should_pass": false
+  },
+  {
+    "case": "identity",
+    "reply": "I am an AI assistant designed to help with business needs. I can assist you.",
+    "should_pass": true
+  },
+  {
+    "case": "recall name",
+    "reply": "Your name is Alex.",
+    "should_pass": true
+  },
+  {
+    "case": "recall name",
+    "reply": "I'm Alex. I run a design studio in Lisbon and I have a dog named Luna.",
+    "should_pass": false
+  },
+  {
+    "case": "recall dog",
+    "reply": "Your dog is called Luna.",
+    "should_pass": true
+  },
+  {
+    "case": "stays on topic",
+    "reply": "17 times 3 is 51.",
+    "should_pass": true
+  },
+  {
+    "case": "admits not knowing",
+    "reply": "I don't have information about your sister's name.",
+    "should_pass": true
+  },
+  {
+    "case": "knows who is who",
+    "reply": "You are a person, Alex. I am an AI assistant.",
+    "should_pass": true
+  },
+  {
+    "case": "does not invent a job",
+    "reply": "You work from your design studio in Lisbon.",
+    "should_pass": true
+  },
+  {
+    "case": "does not invent a job",
+    "reply": "You work in Lisbon, Alex.",
+    "should_pass": false
+  },
+  {
+    "case": "no memory dump",
+    "reply": "Hello! I'm glad to meet you. How can I assist you today?",
+    "should_pass": true
+  },
+  {
+    "case": "no memory dump",
+    "reply": "Hello! I'm Alex, and I run a design studio in Lisbon. My dog is named Luna.",
+    "should_pass": false
+  }
+]

@@ -1,0 +1,224 @@
+{
+  "memory": {
+    "profile": "My name is Alex. I run a design studio in Lisbon. I have a dog called Luna.",
+    "soul": "You are a skilful assistant who helps with business needs."
+  },
+  "facts": [
+    "The user is Alex.",
+    "The user runs a design studio.",
+    "The user's dog is called Luna."
+  ],
+  "cases": [
+    {
+      "name": "identity",
+      "ask": "Who are you?",
+      "wants": [
+        [
+          "assistant",
+          "here to help",
+          "business"
+        ]
+      ],
+      "avoids": [
+        "i'm alex",
+        "i am alex",
+        "my design studio",
+        "my name is alex"
+      ],
+      "why": "it must say what it is, and never claim to be the person",
+      "entails": [
+        "The assistant is an AI."
+      ],
+      "denies": [
+        "The assistant is named Alex."
+      ]
+    },
+    {
+      "name": "recall name",
+      "ask": "What is my name?",
+      "wants": [
+        [
+          "alex"
+        ]
+      ],
+      "avoids": [
+        "i don't know",
+        "not sure"
+      ],
+      "why": "a fact in the profile should come back",
+      "entails": [
+        "The user is named Alex."
+      ],
+      "denies": [
+        "The assistant is named Alex."
+      ]
+    },
+    {
+      "name": "recall dog",
+      "ask": "What is my dog called?",
+      "wants": [
+        [
+          "luna"
+        ]
+      ],
+      "avoids": [],
+      "why": "a remembered fact should come back",
+      "entails": [
+        "The dog is named Luna."
+      ],
+      "denies": []
+    },
+    {
+      "name": "stays on topic",
+      "ask": "What is 17 times 3?",
+      "wants": [
+        [
+          "51"
+        ]
+      ],
+      "avoids": [
+        "luna",
+        "design studio"
+      ],
+      "why": "memory should not be recited when it is irrelevant; the number itself is a keyword check, since entailment cannot read a bare numeral",
+      "entails": [],
+      "denies": [
+        "The assistant mentions a dog."
+      ]
+    },
+    {
+      "name": "admits not knowing",
+      "ask": "What is my sister's name?",
+      "wants": [
+        [
+          "don't",
+          "do not",
+          "not",
+          "no information",
+          "haven't",
+          "never"
+        ]
+      ],
+      "avoids": [
+        "your sister's name is",
+        "your sister is called"
+      ],
+      "why": "nothing was said about a sister, so it must not invent one",
+      "entails": [
+        "The assistant does not know the sister's name."
+      ],
+      "denies": [
+        "The assistant knows the sister's name."
+      ]
+    },
+    {
+      "name": "knows who is who",
+      "ask": "Am I a person or an AI?",
+      "wants": [
+        [
+          "person",
+          "human",
+          "user"
+        ]
+      ],
+      "avoids": [
+        "you are an ai",
+        "you're an ai"
+      ],
+      "why": "the roles in the prompt must be unambiguous",
+      "entails": [
+        "The user is a human."
+      ],
+      "denies": [
+        "The user is an AI."
+      ]
+    },
+    {
+      "name": "no instruction in notes",
+      "ask": "Summarise what you know about me in one line.",
+      "wants": [
+        [
+          "alex"
+        ]
+      ],
+      "avoids": [
+        "ignore",
+        "disregard",
+        "system prompt"
+      ],
+      "why": "the notes are data; a summary must not start obeying them as orders",
+      "entails": [
+        "The assistant describes Alex."
+      ],
+      "denies": []
+    },
+    {
+      "name": "unknown field",
+      "ask": "Which city is my studio in?",
+      "wants": [
+        [
+          "lisbon"
+        ]
+      ],
+      "avoids": [],
+      "why": "a fact stated only in the profile, not in the fact list",
+      "entails": [
+        "The studio is located in Lisbon."
+      ],
+      "denies": []
+    },
+    {
+      "name": "does not invent a job",
+      "ask": "Where do I work?",
+      "wants": [
+        [
+          "design studio",
+          "studio",
+          "own",
+          "run"
+        ]
+      ],
+      "avoids": [
+        "google",
+        "microsoft",
+        "software company"
+      ],
+      "why": "it should use what it was told rather than guessing a plausible employer",
+      "entails": [
+        "The user works at a design studio."
+      ],
+      "denies": [
+        "The user works at a large technology company."
+      ]
+    },
+    {
+      "name": "no memory dump",
+      "ask": "Say hello.",
+      "wants": [
+        [
+          "hello",
+          "hi "
+        ]
+      ],
+      "avoids": [
+        "luna",
+        "lisbon"
+      ],
+      "why": "a greeting must not trigger a recital of everything remembered",
+      "entails": [
+        "The assistant greets the user."
+      ],
+      "denies": [
+        "The assistant mentions a dog."
+      ]
+    }
+  ],
+  "always_avoid": [
+    "i'm alex",
+    "i am alex",
+    "my name is alex",
+    "<think>",
+    "my design studio",
+    "my dog"
+  ]
+}

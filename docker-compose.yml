@@ -1,0 +1,96 @@
+name: harness-master
+
+services:
+  database:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_DB: harness
+      POSTGRES_USER: harness
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - harness_db:/var/lib/postgresql/data
+      - ./database/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U harness -d harness"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    networks: [harness-internal]
+
+  frontend:
+    build: ./frontend
+    networks: [harness-edge]
+    ports:
+      - "127.0.0.1:8765:8765"
+    volumes:
+      - ./config.json:/harness/config.json:ro
+      - ./common:/harness/common:ro
+      - ./frontend:/harness/frontend:ro
+
+  input:
+    build: ./input
+    depends_on:
+      database:
+        condition: service_healthy
+    networks: [harness-edge, harness-internal]
+    env_file: [.env]
+    ports:
+      - "127.0.0.1:8001:8001"
+    volumes:
+      - ./config.json:/harness/config.json:ro
+      - ./common:/harness/common:ro
+      - ./users:/harness/users:ro
+      - ./input:/harness/input
+      - ./telemetry:/harness/telemetry
+      - ./memory:/harness/memory
+      - ./models:/harness/models:ro
+
+  output:
+    build: ./output
+    depends_on:
+      database:
+        condition: service_healthy
+    networks: [harness-edge, harness-internal]
+    env_file: [.env]
+    ports:
+      - "127.0.0.1:8002:8002"
+    volumes:
+      - ./config.json:/harness/config.json:ro
+      - ./common:/harness/common:ro
+      - ./users:/harness/users:ro
+      - ./output:/harness/output:ro
+      - ./telemetry:/harness/telemetry:ro
+      - ./memory:/harness/memory:ro
+
+  workflows:
+    build: ./workflows
+    depends_on:
+      database:
+        condition: service_healthy
+    networks: [harness-internal]
+    env_file: [.env]
+    volumes:
+      - ./config.json:/harness/config.json:ro
+      - ./common:/harness/common:ro
+      - ./workflows:/harness/workflows:ro
+      - ./agents:/harness/agents:ro
+      - ./models:/harness/models:ro
+      - ./input:/harness/input:ro
+      - ./output:/harness/output
+      - ./telemetry:/harness/telemetry
+      - ./memory:/harness/memory
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+volumes:
+  harness_db:
+
+networks:
+  harness-edge:
+  harness-internal:
+    internal: true

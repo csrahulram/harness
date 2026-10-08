@@ -1,0 +1,9 @@
+{
+  "modes": {
+    "chat": "chat"
+  },
+  "blocked_reply": "I can't pass this on. The guard flagged it as a possible prompt injection.",
+  "error_reply": "Something went wrong while running this task.",
+  "no_answer_reply": "The thinker gave no answer.",
+  "unknown_mode_reply": "I don't know this mode."
+}

@@ -1,0 +1,7 @@
+{
+  "agent": "memory_recall",
+  "model": "multi_qa_minilm_l6",
+  "device": "cpu",
+  "gpu_gb": 0,
+  "no_user_reason": "this task has no user"
+}

@@ -1,0 +1,14 @@
+models/
+input/*/
+!input/modules/
+output/*/
+!output/modules/
+telemetry/*.jsonl
+telemetry/*.json
+workspace/*/
+.env
+__pycache__/
+*.pyc
+memory/users/*/
+!memory/users/README.md
+workspace/*.log

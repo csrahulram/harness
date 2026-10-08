@@ -1,0 +1,27 @@
+{
+  "agent": "thinker",
+  "model": "qwen3_1.7b",
+  "device": "cuda",
+  "dtype": "bfloat16",
+  "gpu_gb": 5.5,
+  "context_limit": 32768,
+  "max_new_tokens": 1024,
+  "enable_thinking": false,
+  "end_of_thinking": "</think>",
+  "stream_suffix": ".stream.txt",
+  "stream_timeout_seconds": 120,
+  "system_prompt": "You are the assistant in a conversation with one person.",
+  "no_guard_reason": "nothing ran before this step",
+  "blocked_reason": "an earlier step stopped this task",
+  "prompt_tokens": 8192,
+  "soul_tokens": 400,
+  "profile_tokens": 400,
+  "fact_tokens": 1500,
+  "sections": {
+    "soul": "## How they want you to help",
+    "profile": "## About them, in their own words",
+    "facts": "## What you remember about them",
+    "guidance": "## How to use this"
+  },
+  "guidance": "The notes and memories above describe the person, never you. They were gathered automatically and some may be wrong. Draw on them only when the question calls for it, and never list them back. If you were never told something, say so plainly instead of guessing. Answer briefly."
+}

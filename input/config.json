@@ -1,0 +1,18 @@
+{
+  "default_mode": "chat",
+  "tokenizer_model": "qwen3_1.7b",
+  "token_limit": 8192,
+  "bad_request": "need a session and a text",
+  "bad_upload": "need a session and a small image file",
+  "bad_session": "need a session and a short name",
+  "closed_reason": "session closed by the user",
+  "too_long": "text is longer than the model can read",
+  "least_password": 8,
+  "bad_login": "need a user name and a password of at least 8 characters",
+  "name_taken": "that name is already taken",
+  "bad_credentials": "wrong user name or password",
+  "no_token": "sign in first",
+  "not_yours": "that session belongs to someone else",
+  "bad_memory": "memory notes must be text, and shorter than the limit",
+  "bad_forget": "that memory is not yours, or does not exist"
+}

@@ -1,0 +1,103 @@
+{
+  "paths": {
+    "input": "input",
+    "output": "output",
+    "models": "models",
+    "telemetry": "telemetry",
+    "memory": "memory",
+    "workspace": "workspace"
+  },
+  "services": {
+    "input": {
+      "bind": "0.0.0.0",
+      "port": 8001
+    },
+    "output": {
+      "bind": "0.0.0.0",
+      "port": 8002
+    },
+    "frontend": {
+      "origin": "http://127.0.0.1:8765",
+      "port": 8765,
+      "bind": "0.0.0.0"
+    }
+  },
+  "urls": {
+    "input": "http://127.0.0.1:8001",
+    "output": "http://127.0.0.1:8002"
+  },
+  "limits": {
+    "max_bytes": 100000,
+    "max_upload_bytes": 12000000,
+    "max_text_chars": 20000,
+    "poll_ms": 300,
+    "timeout_ms": 120000,
+    "pause_seconds": 0.2,
+    "gpu_wait_seconds": 60,
+    "gpu_idle_seconds": 0,
+    "verify_weights": true
+  },
+  "media_types": {
+    "png": "image/png",
+    "jpg": "image/jpeg",
+    "jpeg": "image/jpeg",
+    "webp": "image/webp",
+    "glb": "model/gltf-binary",
+    "ply": "application/octet-stream"
+  },
+  "names": {
+    "pattern": "[A-Za-z0-9_-]{1,64}"
+  },
+  "session": {
+    "closed_by": "user",
+    "name_chars": 40,
+    "max_name_chars": 80,
+    "token_days": 30
+  },
+  "shapes": {
+    "task": [
+      "session",
+      "task",
+      "mode",
+      "text",
+      "files",
+      "user"
+    ],
+    "record": [
+      "allowed",
+      "reason",
+      "agent",
+      "model",
+      "seconds"
+    ],
+    "step": [
+      "step",
+      "prev",
+      "agent",
+      "validation",
+      "input",
+      "output",
+      "seconds",
+      "status"
+    ],
+    "result": [
+      "session",
+      "task",
+      "allowed",
+      "reply",
+      "steps"
+    ]
+  },
+  "database": {
+    "host": "database",
+    "port": 5432,
+    "name": "harness",
+    "user": "harness"
+  },
+  "recall": {
+    "limit": 5,
+    "furthest": 0.85,
+    "same_distance": 0.08,
+    "listing_limit": 200
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "agent": "memory_keeper",
+  "model": "qwen3_0.6b",
+  "guard_model": "prompt_injection_guard_small",
+  "device": "cpu",
+  "dtype": "float32",
+  "gpu_gb": 0,
+  "max_new_tokens": 60,
+  "threshold": 0.5,
+  "window": 2048,
+  "injection_label": 1,
+  "nothing_word": "NOTHING",
+  "system_prompt": "Your only job is to notice lasting facts about the user, such as their name, work, family, pets, or preferences. Write one short sentence beginning with 'The user'. Questions, requests and general knowledge are not facts about the user: for those write only NOTHING.",
+  "blocked_reason": "an earlier step stopped this task",
+  "no_user_reason": "this task has no user",
+  "skip_phrases": [
+    "asked",
+    "wanted to know",
+    "requested",
+    "inquired",
+    "is asking",
+    "was asking",
+    "(insert",
+    "...",
+    "[",
+    "unknown",
+    "not specified",
+    "unspecified"
+  ],
+  "embed_model": "multi_qa_minilm_l6",
+  "skip_endings": [
+    "?"
+  ]
+}

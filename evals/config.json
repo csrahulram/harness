@@ -1,0 +1,11 @@
+{
+  "judge_model": "deberta_v3_base_mnli",
+  "device": "cpu",
+  "entailment_label": "entailment",
+  "max_new_tokens": 200,
+  "thinking": [
+    true,
+    false
+  ],
+  "frame": "The assistant said to the user: \"{reply}\""
+}

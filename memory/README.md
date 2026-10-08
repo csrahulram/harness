@@ -1,0 +1,1 @@
+# Entire harness knowledge base. Agents can read only from this knowledge base to get additional knowlege of the given task

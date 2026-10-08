@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Harness</title>
+  <link rel="stylesheet" href="style.css">
+  <script type="module" src="vendor/deep_chat/deepChat.bundle.js"></script>
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+  <header>
+    <span class="mark"></span>
+    <h1>Harness</h1>
+    <span class="who" id="who"></span>
+    <span class="status" id="status"></span>
+    <button class="small" id="copy">Copy</button>
+    <button class="small" id="notes">Memory</button>
+    <button class="small" id="signout">Sign out</button>
+    <button class="small" id="forget">Delete profile</button>
+  </header>
+  <section class="gate" id="gate" hidden>
+    <form id="login" autocomplete="on">
+      <h2>Harness</h2>
+      <label>Name <input name="user" autocomplete="username" required></label>
+      <label>Password <input name="password" type="password" autocomplete="current-password" required></label>
+      <div class="gate-buttons">
+        <button type="submit" class="small">Sign in</button>
+        <button type="button" class="small" id="register">Create account</button>
+      </div>
+      <p class="gate-message" id="gate-message"></p>
+    </form>
+  </section>
+  <section class="notes" id="notes-screen" hidden>
+    <div class="notes-card">
+      <h2>What I remember about you</h2>
+      <p class="notes-hint">Both notes go into every reply, so keep them short. You write these; nothing else changes them.</p>
+      <label>Profile — facts worth knowing every time <span class="count" id="profile-count"></span>
+        <textarea id="profile-note" rows="6" placeholder="My name is... I work on..."></textarea>
+      </label>
+      <label>Soul — how you want to be helped <span class="count" id="soul-count"></span>
+        <textarea id="soul-note" rows="6" placeholder="You are a skilful assistant who..."></textarea>
+      </label>
+      <h3 class="facts-title">Learned while we talked</h3>
+      <ul class="facts" id="facts"></ul>
+      <div class="notes-buttons">
+        <button type="button" class="small" id="save-notes">Save</button>
+        <button type="button" class="small" id="close-notes">Close</button>
+        <span class="notes-message" id="notes-message"></span>
+      </div>
+    </div>
+  </section>
+  <main>
+    <nav class="sessions">
+      <div class="panel-head">
+        <h2>Sessions</h2>
+        <button class="small" id="new">+ New</button>
+      </div>
+      <ul id="sessions"></ul>
+    </nav>
+    <section class="chat">
+      <deep-chat
+        id="chat"
+        style="display: block; width: 100%; height: 100%; border: none; background-color: #faf9f5"
+      ></deep-chat>
+    </section>
+    <aside class="chain">
+      <div class="panel-head">
+        <h2>Chain</h2>
+        <button class="small" id="raw">Raw JSON</button>
+      </div>
+      <ol id="cards"></ol>
+      <pre id="json" hidden></pre>
+    </aside>
+  </main>
+</body>
+</html>
