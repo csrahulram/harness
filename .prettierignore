@@ -1,0 +1,8 @@
+node_modules
+models
+input
+workspace
+output
+scratchpad
+training
+package-lock.json

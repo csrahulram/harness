@@ -1,0 +1,6 @@
+{
+  "workspace": "workspace",
+  "folders": ["input", "output", "scratchpad", "training"],
+  "settle_ms": 250,
+  "starts_work": "input"
+}

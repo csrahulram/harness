@@ -1,0 +1,7 @@
+{
+  "port": 8080,
+  "bind": "127.0.0.1",
+  "chunk_chars": 2500,
+  "overlap_chars": 300,
+  "page": "page"
+}

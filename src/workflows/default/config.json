@@ -1,0 +1,15 @@
+{
+  "workflow": "default",
+  "kinds": {
+    "text": [".txt", ".md"],
+    "document": [".pdf", ".doc", ".docx"],
+    "image": [".png", ".jpg", ".jpeg", ".webp"],
+    "audio": [".mp3", ".wav"],
+    "code": [".ts", ".js", ".json"]
+  },
+  "unknown_kind": "unknown",
+  "unknown_reason": "nothing here reads that kind of file yet",
+  "reads_kind": "text",
+  "max_chars": 4000,
+  "result": "output/result.txt"
+}

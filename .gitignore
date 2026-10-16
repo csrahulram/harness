@@ -1,0 +1,25 @@
+node_modules/
+
+# secrets, never committed
+.env
+.env.*
+!.env.example
+
+# model weights are downloaded, not committed; the list of them is
+models/*
+!models/models.md
+
+# typescript's incremental check cache
+*.tsbuildinfo
+
+# logs
+*.log
+npm-debug.log*
+
+# what windows and macos leave behind
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# everything the harness reads and writes; it makes these folders itself on startup
+workspace/

@@ -1,0 +1,9 @@
+{
+  "agent": "guard",
+  "model": "deberta_v3_base_prompt_injection_v2",
+  "injection_label": "INJECTION",
+  "blocked_reason": "that reads like a prompt injection",
+  "allowed_reason": "nothing suspicious in it",
+  "empty_reason": "there was no text to check",
+  "models": "./models"
+}
