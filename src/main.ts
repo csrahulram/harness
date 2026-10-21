@@ -1,24 +1,30 @@
 // Harness entry: watches the folders, mints a task for anything new, and passes each step on.
-import { existsSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import config from "./config.json" with { type: "json" };
 import { closeTask } from "./common/close_task.ts";
 import { findSession } from "./common/find_session.ts";
-import { findWaiting } from "./common/find_waiting.ts";
-import { findStep } from "./common/find_step.ts";
 import { makeFolders } from "./common/make_folders.ts";
-import { makeStep, type Step } from "./common/make_step.ts";
-import { makeTaskId } from "./common/make_task_id.ts";
-import { readStep } from "./common/read_step.ts";
+import type { Step } from "./common/make_step.ts";
 import { reportChange } from "./common/report_change.ts";
 import { reportOutcome } from "./common/report_outcome.ts";
+import { resumeAll } from "./common/resume_all.ts";
+import { takeChange } from "./common/take_change.ts";
 import { watchFolders } from "./common/watch_folders.ts";
 import { pickWorkflow } from "./workflows/pick_workflow.ts";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const workspace = join(root, config.workspace);
+const scratchpad = join(workspace, config.steps_folder);
+const names = {
+  starts: config.starts_work,
+  steps: config.steps_folder,
+  prefix: config.session_prefix,
+  workflow: config.first_workflow,
+  from: config.watcher,
+};
+const notes = { arrived: config.arrived_note, task: config.task_prefix, most: config.max_steps };
 
 function pass(step: Step): void {
   const workflow = pickWorkflow(step.next);
@@ -26,13 +32,12 @@ function pass(step: Step): void {
     console.log(reportChange(step.task, `no workflow is called ${step.next}`));
     return;
   }
-  const scratchpad = join(workspace, config.steps_folder);
   workflow
     .run({ workspace, step })
     .then((outcome) => {
       console.log(reportOutcome(outcome));
       if (!outcome.allowed) {
-        closeTask(scratchpad, step, step.next, outcome.reason);
+        closeTask(scratchpad, step, step.next, outcome.reason, outcome.said);
       }
     })
     .catch((trouble: unknown) => {
@@ -57,59 +62,25 @@ watchFolders(
   unitOf,
   (folder, unit) => {
     console.log(reportChange(folder, unit));
-    if (folder === config.starts_work) {
-      const named = unit.startsWith(config.session_prefix);
-      if (named && existsSync(join(workspace, config.steps_folder, unit))) {
-        return;
-      }
-      pass(
-        makeStep({
-          task: named ? unit : makeTaskId(config.task_prefix),
-          step: 0,
-          about: `${folder}/${unit}`,
-          next: config.first_workflow,
-          from: config.watcher,
-          note: config.arrived_note,
-        }),
-      );
+    const taken = takeChange(workspace, { folder, unit }, names, notes);
+    if (taken.capped) {
+      console.log(reportChange(taken.capped.task, config.capped_reason));
+      closeTask(scratchpad, taken.capped, taken.capped.next, config.capped_reason);
       return;
     }
-    if (folder !== config.steps_folder) {
-      return;
+    if (taken.pass) {
+      pass(taken.pass);
     }
-    if (!findStep(unit)) {
-      return;
-    }
-    const step = readStep(join(workspace, folder, unit));
-    if (!step || step.done) {
-      return;
-    }
-    if (step.step >= config.max_steps) {
-      console.log(
-        reportChange(step.task, `stopped at step ${step.step}; that is as far as it goes`),
-      );
-      return;
-    }
-    pass(step);
   },
 );
 
-for (const waiting of findWaiting(
-  join(workspace, config.starts_work),
-  join(workspace, config.steps_folder),
-  config.session_prefix,
+for (const step of resumeAll(
+  workspace,
+  { input: config.starts_work, scratchpad: config.steps_folder, ...names },
+  notes,
 )) {
-  console.log(reportChange(config.starts_work, `${waiting} was left waiting`));
-  pass(
-    makeStep({
-      task: waiting,
-      step: 0,
-      about: `${config.starts_work}/${waiting}`,
-      next: config.first_workflow,
-      from: config.watcher,
-      note: config.arrived_note,
-    }),
-  );
+  console.log(reportChange(step.task, `${step.task} was left waiting at step ${step.step}`));
+  pass(step);
 }
 
 console.log(`watching ${config.folders.join(", ")}; work starts from ${config.starts_work}`);

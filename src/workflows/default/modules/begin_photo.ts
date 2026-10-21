@@ -4,6 +4,7 @@ import { join } from "node:path";
 import * as guard from "../../../agents/guard/main.ts";
 import { makeOutcome, type Outcome } from "../../../common/make_outcome.ts";
 import { makeStep, type Step, type Task } from "../../../common/make_step.ts";
+import { noteSaid } from "../../../common/note_said.ts";
 import { writeStep } from "../../../common/write_step.ts";
 import config from "../config.json" with { type: "json" };
 
@@ -11,7 +12,7 @@ export async function beginPhoto(task: Task, kind: string, start: number): Promi
   const image = join(task.workspace, task.step.about);
   const checked = await guard.run({ job: kind, image });
   if (!checked.allowed) {
-    return makeOutcome(false, checked.reason, config.workflow, kind, start);
+    return makeOutcome(false, checked.reason, config.workflow, kind, start, [noteSaid(checked)]);
   }
   const facts: Step["facts"] = {
     ...task.step.facts,

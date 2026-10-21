@@ -1,9 +1,9 @@
 // Thinker agent: answers in words, on the smallest model on the server that can take the work.
 import harness from "../../config.json" with { type: "json" };
+import { askOllama, type Spoken } from "../../common/ask_ollama.ts";
 import { makeRecord, type Record } from "../../common/make_record.ts";
 import config from "./config.json" with { type: "json" };
 import { answerOnly } from "./modules/answer_only.ts";
-import { askOllama, type Spoken } from "./modules/ask_ollama.ts";
 import { pickRung, type Rung } from "./modules/pick_rung.ts";
 
 export const settings = config;

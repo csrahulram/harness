@@ -36,7 +36,7 @@ export async function guardSession(task: Task, start: number): Promise<Outcome> 
     spoke.push(noteSaid(checked));
     if (!checked.allowed) {
       const why = config.blocked_as.replace("{why}", checked.reason);
-      return makeOutcome(false, why, config.workflow, kind, start);
+      return makeOutcome(false, why, config.workflow, kind, start, spoke);
     }
     said.push(`${file} is ${found}, ok`);
     if (reads) {

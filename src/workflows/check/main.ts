@@ -20,7 +20,7 @@ export async function run(task: Task): Promise<Outcome> {
     question: asked || config.question.replace("{subject}", subject),
   });
   if (!said.allowed) {
-    return makeOutcome(false, said.reason, config.workflow, kind, start);
+    return makeOutcome(false, said.reason, config.workflow, kind, start, [noteSaid(said)]);
   }
   const worth = weighAnswer(said.text ?? "", config.no_use, config.least_chars);
   const facts: Step["facts"] = { ...task.step.facts, checked: worth };

@@ -11,5 +11,6 @@
   "arrived_note": "something new arrived",
   "max_steps": 8,
   "session_prefix": "session_",
-  "idle_ms": 60000
+  "idle_ms": 60000,
+  "capped_reason": "that is as far as it goes"
 }

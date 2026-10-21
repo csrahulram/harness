@@ -30,7 +30,7 @@ export async function run(task: Task): Promise<Outcome> {
     (config.starts_at as { [job: string]: number })[job] ?? 0,
   );
   if (!record.allowed) {
-    return makeOutcome(false, record.reason, config.workflow, kind, start);
+    return makeOutcome(false, record.reason, config.workflow, kind, start, said);
   }
   const facts: Step["facts"] = {
     ...task.step.facts,

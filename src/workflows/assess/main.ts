@@ -16,7 +16,7 @@ export async function run(task: Task): Promise<Outcome> {
   const image = join(task.workspace, pickImage(task.step));
   const seen = await looker.run({ image, job: config.objects_job });
   if (!seen.allowed) {
-    return makeOutcome(false, seen.reason, config.workflow, kind, start);
+    return makeOutcome(false, seen.reason, config.workflow, kind, start, [noteSaid(seen)]);
   }
   const told = await looker.run({ image, job: config.caption_job });
   const facts: Step["facts"] = {

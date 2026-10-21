@@ -5,6 +5,7 @@ import * as guard from "../../../agents/guard/main.ts";
 import * as thinker from "../../../agents/thinker/main.ts";
 import { makeOutcome, type Outcome } from "../../../common/make_outcome.ts";
 import type { Task } from "../../../common/make_step.ts";
+import { noteSaid } from "../../../common/note_said.ts";
 import { readText } from "../../../common/read_text.ts";
 import { writeResult } from "../../../common/write_result.ts";
 import config from "../config.json" with { type: "json" };
@@ -13,11 +14,14 @@ export async function thinkText(task: Task, kind: string, start: number): Promis
   const text = readText(join(task.workspace, task.step.about), config.max_chars);
   const guarded = await guard.run({ job: kind, text });
   if (!guarded.allowed) {
-    return makeOutcome(false, guarded.reason, config.workflow, kind, start);
+    return makeOutcome(false, guarded.reason, config.workflow, kind, start, [noteSaid(guarded)]);
   }
   const thought = await thinker.run({ job: config.note_job, text, rung: config.note_rung });
   if (!thought.allowed) {
-    return makeOutcome(false, thought.reason, config.workflow, kind, start);
+    return makeOutcome(false, thought.reason, config.workflow, kind, start, [
+      noteSaid(guarded),
+      noteSaid(thought),
+    ]);
   }
   writeResult(join(task.workspace, config.result), task.step.about, thought.text ?? "");
   return makeOutcome(
