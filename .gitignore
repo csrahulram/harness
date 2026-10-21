@@ -23,3 +23,8 @@ desktop.ini
 
 # everything the harness reads and writes; it makes these folders itself on startup
 workspace/
+
+# what the harness measures about itself: the folder and its note are kept,
+# the lines are machine-written and grow, so they are not
+coding/runs/*.jsonl
+coding/ledger.jsonl
