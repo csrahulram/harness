@@ -50,14 +50,14 @@ export async function guardSession(task: Task, start: number): Promise<Outcome> 
   const chore = facts.picture
     ? undefined
     : pickJob(String(facts.prompt ?? ""), config.chores as Chore[]);
-  if (chore) {
+  if (chore?.tool) {
     facts.tool = chore.tool;
     facts.job = chore.job;
   }
   const next = facts.picture
     ? config.first_worker
     : chore
-      ? config.looks_up_with
+      ? (chore.goes_to ?? config.looks_up_with)
       : config.answers_with;
   writeStep(
     join(task.workspace, config.scratchpad),

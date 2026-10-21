@@ -32,11 +32,13 @@ export async function run(task: Task): Promise<Outcome> {
   if (!record.allowed) {
     return makeOutcome(false, record.reason, config.workflow, kind, start, said);
   }
+  const began = (config.starts_at as { [job: string]: number })[job] ?? 0;
   const facts: Step["facts"] = {
     ...task.step.facts,
     reply: record.text ?? "",
     answered_by: record.model,
     tried: said.length,
+    began_at: began,
   };
   writeStep(
     join(task.workspace, config.scratchpad),

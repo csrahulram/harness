@@ -41,6 +41,19 @@
   "looks_up_with": "lookup",
   "chores": [
     {
+      "tool": "",
+      "job": "",
+      "goes_to": "coding",
+      "when": [
+        "improve yourself",
+        "improve your own code",
+        "self improve",
+        "work on your own code",
+        "take a pass at your own code",
+        "read your own chain"
+      ]
+    },
+    {
       "tool": "clock",
       "job": "now",
       "when": [

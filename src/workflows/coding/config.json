@@ -1,0 +1,94 @@
+{
+  "workflow": "coding",
+  "reports_to": "default",
+  "runs_folder": "coding/runs",
+  "ledger_file": "coding/ledger.jsonl",
+  "window_runs": 40,
+  "least_seen": 1,
+  "gives_up_after": 2,
+  "scratchpad": "scratchpad",
+  "faults": [
+    {
+      "fault": "ran_out_of_room",
+      "sees": "stopped",
+      "when": ["ran out of room before it finished"],
+      "kind": "knob",
+      "file": "src/agents/thinker/config.json",
+      "knob": "rungs.1.num_predict",
+      "goal": "give rung 1 room to close its thinking",
+      "clause": "The ladder climbs on capacity, not quality",
+      "weight": 3
+    },
+    {
+      "fault": "climbed_every_time",
+      "sees": "climbed",
+      "when": [],
+      "kind": "knob",
+      "file": "src/workflows/answer/config.json",
+      "knob": "starts_at.reply",
+      "goal": "start this job at the rung that actually answers it",
+      "clause": "the smallest model that can cope",
+      "weight": 2
+    },
+    {
+      "fault": "started_too_high",
+      "sees": "started_high",
+      "when": [],
+      "kind": "knob",
+      "file": "src/workflows/answer/config.json",
+      "knob": "starts_at.reply_looked",
+      "goal": "stop paying for a rung the one below can manage",
+      "clause": "A rung that refuses does so before loading anything",
+      "weight": 2
+    },
+    {
+      "fault": "nothing_was_said",
+      "sees": "stopped",
+      "when": ["finished thinking but said nothing"],
+      "kind": "knob",
+      "file": "src/agents/thinker/config.json",
+      "knob": "rungs.1.num_predict",
+      "goal": "give rung 1 room to say something after it thinks",
+      "clause": "The ladder climbs on capacity, not quality",
+      "weight": 3
+    },
+    {
+      "fault": "chain_hit_the_cap",
+      "sees": "stopped",
+      "when": ["that is as far as it goes"],
+      "kind": "report",
+      "file": "",
+      "knob": "",
+      "goal": "a mis-route is a routing bug, so a person must read the chain",
+      "clause": "next is the whole routing",
+      "weight": 4
+    },
+    {
+      "sees": "stopped",
+      "fault": "guard_refused_what_arrived",
+      "when": ["reads like a prompt injection"],
+      "kind": "report",
+      "file": "",
+      "knob": "",
+      "goal": "the guard did its job, so there is nothing to change",
+      "clause": "Nothing reaches a model unguarded",
+      "weight": 0
+    }
+  ],
+  "never_touch": [
+    "agent.md",
+    "coding",
+    "package.json",
+    "src/config.json",
+    "src/common",
+    "src/agents/guard",
+    "src/workflows/coding"
+  ],
+  "found_note": "found one thing worth trying",
+  "nothing_note": "nothing measured is worth trying yet",
+  "reason": "read the chain and ranked what it found",
+  "nothing_reason": "the archive is too thin to say anything yet",
+  "says_found": "Measured {runs} runs. The one worth trying: {goal} - {file} {knob}, seen {seen} times. Nothing was changed.",
+  "says_report": "Measured {runs} runs. The loudest thing is {fault}, seen {seen} times, and it needs a person: {goal}. Nothing was changed.",
+  "says_nothing": "Measured {runs} runs and found nothing worth trying. Nothing was changed."
+}

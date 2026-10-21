@@ -4,6 +4,7 @@ import type { Task } from "../common/make_step.ts";
 import * as answer from "./answer/main.ts";
 import * as assess from "./assess/main.ts";
 import * as check from "./check/main.ts";
+import * as coding from "./coding/main.ts";
 import * as fallback from "./default/main.ts";
 import * as lookup from "./lookup/main.ts";
 import * as optimise from "./optimise/main.ts";
@@ -16,6 +17,7 @@ export function pickWorkflow(name: string): Workflow | undefined {
     answer,
     assess,
     check,
+    coding,
     lookup,
     optimise,
   };

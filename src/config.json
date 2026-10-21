@@ -12,5 +12,7 @@
   "max_steps": 8,
   "session_prefix": "session_",
   "idle_ms": 60000,
-  "capped_reason": "that is as far as it goes"
+  "capped_reason": "that is as far as it goes",
+  "notes_folder": "coding",
+  "runs_folder": "coding/runs"
 }

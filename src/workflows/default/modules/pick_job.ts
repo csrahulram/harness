@@ -1,5 +1,11 @@
 // Decides, from the words alone, whether a tool should answer this instead of a model.
-export type Chore = { tool: string; job: string; when: string[]; unless?: string[] };
+export type Chore = {
+  tool: string;
+  job: string;
+  when: string[];
+  unless?: string[];
+  goes_to?: string;
+};
 
 export function pickJob(words: string, chores: Chore[]): Chore | undefined {
   const said = words.toLowerCase();
