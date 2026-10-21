@@ -13,7 +13,9 @@
     "chat": "node --watch --watch-path=src src/chat/main.ts",
     "check": "tsc --noEmit",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "coder": "node src/coder/main.ts",
+    "undo": "git revert --no-edit HEAD"
   },
   "devDependencies": {
     "@types/node": "^26.6.5",

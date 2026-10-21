@@ -1,0 +1,18 @@
+{
+  "coder": "coder",
+  "bind": "127.0.0.1",
+  "port": 8099,
+  "workspace": "workspace",
+  "notes_folder": "notes",
+  "fix_path": "/fix",
+  "state_path": "/state",
+  "needs": ["fault", "asked", "expect", "goal"],
+  "max_chars": 4000,
+  "most_waiting": 20,
+  "took_it": "took the note and will work on it",
+  "short_note": "that note is missing what it needs",
+  "too_many": "there is already too much waiting here",
+  "no_route": "the coder has nothing at that address",
+  "bad_json": "that was not a note the coder can read",
+  "started": "coder listening on http://{bind}:{port}{path}; it fixes, it does not chat"
+}

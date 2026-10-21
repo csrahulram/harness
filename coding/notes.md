@@ -26,7 +26,7 @@ ladder, and it is just as true of the code. Every fault this loop chases is mech
 a cap, a climb, a timing. It has no quality signal and no way to get one.
 
 That matters because the two can disagree. `models.md` records raising rung 1's budget from 512 to
-1024: every mechanical signal improved - it stopped climbing - and the answer got *worse*. A loop
+1024: every mechanical signal improved - it stopped climbing - and the answer got _worse_. A loop
 tuning on mechanical signals alone would have called that a win. So:
 
 > **Gates passing means "did not obviously break". It does not mean "got better".**
@@ -36,7 +36,7 @@ tuning on mechanical signals alone would have called that a win. So:
 - **A chain that hit the cap** is a mis-route, and `next` is the whole routing. No small model
   should guess at it; read the chain.
 - **A file over the 100-line cap** is reported, never handed to the coder. The fix is to extract
-  into a *second* file, and the coder is given one. Asked to shorten a file it will delete a
+  into a _second_ file, and the coder is given one. Asked to shorten a file it will delete a
   feature instead, and the type check, the formatter, the rules check and the boot test will all
   pass. As of 2026-10-21 that is `src/chat/main.ts`, at 119 lines.
 

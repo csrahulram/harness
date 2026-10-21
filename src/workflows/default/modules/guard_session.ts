@@ -6,11 +6,11 @@ import * as guard from "../../../agents/guard/main.ts";
 import { makeOutcome, type Outcome } from "../../../common/make_outcome.ts";
 import { makeStep, type Said, type Step, type Task } from "../../../common/make_step.ts";
 import { noteSaid } from "../../../common/note_said.ts";
+import { pickJob, type Chore } from "../../../common/pick_job.ts";
 import { readText } from "../../../common/read_text.ts";
 import { writeStep } from "../../../common/write_step.ts";
 import config from "../config.json" with { type: "json" };
 import { detectType } from "./detect_type.ts";
-import { pickJob, type Chore } from "./pick_job.ts";
 
 export async function guardSession(task: Task, start: number): Promise<Outcome> {
   const folder = join(task.workspace, task.step.about);

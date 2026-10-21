@@ -1,0 +1,14 @@
+{
+  "tool": "coder",
+  "host": "http://127.0.0.1:8099",
+  "fix_path": "/fix",
+  "state_path": "/state",
+  "wait_ms": 5000,
+  "jobs": { "send": "hand one debug note to the coder instance", "ask": "is the coder there" },
+  "sent": "handed the note to the coder",
+  "awake": "the coder is there",
+  "unknown_job": "the coder tool was not asked for anything it can do",
+  "no_note": "there was no note to send",
+  "no_coder": "the coder is not answering - start it with npm run coder in its own folder",
+  "refused": "the coder would not take that note"
+}

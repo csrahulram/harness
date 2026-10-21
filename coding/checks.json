@@ -1,0 +1,59 @@
+[
+  {
+    "fault": "wrong_tool_for_the_words",
+    "ask": "what is the time?",
+    "goal": "a plainly worded time question should reach the clock, not a web search",
+    "wants_tool": "clock",
+    "expect": {
+      "must_match": "\\d{1,2}:\\d{2}",
+      "must_not_say": [
+        "cannot",
+        "could not",
+        "unable",
+        "do not have",
+        "don't have"
+      ]
+    },
+    "clause": "Code orders the steps",
+    "file": "src/workflows/default/config.json",
+    "knob": "chores.1.when"
+  },
+  {
+    "fault": "no_tool_for_the_words",
+    "ask": "tell me the time",
+    "goal": "asking for the time in other words should still reach the clock",
+    "wants_tool": "clock",
+    "expect": {
+      "must_match": "\\d{1,2}:\\d{2}",
+      "must_not_say": [
+        "cannot",
+        "could not",
+        "unable",
+        "do not have",
+        "don't have"
+      ]
+    },
+    "clause": "Code orders the steps",
+    "file": "src/workflows/default/config.json",
+    "knob": "chores.1.when"
+  },
+  {
+    "fault": "no_tool_for_the_words",
+    "ask": "whats the time",
+    "goal": "a time question without an apostrophe should still reach the clock",
+    "wants_tool": "clock",
+    "expect": {
+      "must_match": "\\d{1,2}:\\d{2}",
+      "must_not_say": [
+        "cannot",
+        "could not",
+        "unable",
+        "do not have",
+        "don't have"
+      ]
+    },
+    "clause": "Code orders the steps",
+    "file": "src/workflows/default/config.json",
+    "knob": "chores.1.when"
+  }
+]

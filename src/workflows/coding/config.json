@@ -90,5 +90,13 @@
   "nothing_reason": "the archive is too thin to say anything yet",
   "says_found": "Measured {runs} runs. The one worth trying: {goal} - {file} {knob}, seen {seen} times. Nothing was changed.",
   "says_report": "Measured {runs} runs. The loudest thing is {fault}, seen {seen} times, and it needs a person: {goal}. Nothing was changed.",
-  "says_nothing": "Measured {runs} runs and found nothing worth trying. Nothing was changed."
+  "says_nothing": "Measured {runs} runs and found nothing worth trying. Nothing was changed.",
+  "checks_file": "coding/checks.json",
+  "sends_with": "coder",
+  "send_job": "send",
+  "wrong_tool": "it reached {reached} instead",
+  "sent_note": "handed one debug note to the coder",
+  "sent_reply": "Checked {checked} things the harness should be able to do. {failed} went wrong. Sent the coder the loudest: \"{asked}\" reached {reached}, and it should reach {wants}. Nothing here was changed.",
+  "no_coder_reply": "Checked {checked} things. {failed} went wrong, the loudest being \"{asked}\", but the coder is not answering, so the note was not sent.",
+  "no_coder_note": "found trouble but the coder is not there"
 }
