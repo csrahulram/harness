@@ -1,0 +1,17 @@
+{
+  "workflow": "answer",
+  "reports_to": "default",
+  "job": "reply",
+  "labels": {
+    "caption": "a model looking at it saw",
+    "labels": "things found in it",
+    "words_in_photo": "words written on it",
+    "checked": "a second model asked about it said"
+  },
+  "nothing_said": "(they sent a picture without saying anything)",
+  "note": "answered; have it checked before it goes out",
+  "reason": "wrote a reply",
+  "scratchpad": "scratchpad",
+  "notes_open": "Notes from the harness about the picture they sent, for you to use:",
+  "picture_job": "reply_picture"
+}

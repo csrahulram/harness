@@ -7,9 +7,10 @@
     "node": ">=24"
   },
   "scripts": {
+    "init": "node src/setup/main.ts",
     "dev": "node --watch --watch-path=src src/main.ts",
     "start": "node src/main.ts",
-    "viewer": "node src/viewer/main.ts",
+    "chat": "node --watch --watch-path=src src/chat/main.ts",
     "check": "tsc --noEmit",
     "format": "prettier --write .",
     "format:check": "prettier --check ."

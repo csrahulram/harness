@@ -1,17 +1,19 @@
-// Keeps the answer and sets the model's thinking aside, so each can be read on its own.
+// Keeps the answer and sets the thinking aside, and says plainly if the thinking never finished.
 export function answerOnly(
   said: string,
   endOfThinking: string,
 ): {
   thinking: string;
   answer: string;
+  finished: boolean;
 } {
   const at = said.indexOf(endOfThinking);
   if (at < 0) {
-    return { thinking: "", answer: said.trim() };
+    return { thinking: said.replace("<think>", "").trim(), answer: "", finished: false };
   }
   return {
     thinking: said.slice(0, at).replace("<think>", "").trim(),
     answer: said.slice(at + endOfThinking.length).trim(),
+    finished: true,
   };
 }

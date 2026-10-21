@@ -2,5 +2,14 @@
   "workspace": "workspace",
   "folders": ["input", "output", "scratchpad", "training"],
   "settle_ms": 250,
-  "starts_work": "input"
+  "repeat_ms": 2000,
+  "starts_work": "input",
+  "steps_folder": "scratchpad",
+  "first_workflow": "default",
+  "task_prefix": "task_",
+  "watcher": "watcher",
+  "arrived_note": "something new arrived",
+  "max_steps": 8,
+  "session_prefix": "session_",
+  "idle_ms": 60000
 }

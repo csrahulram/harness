@@ -1,11 +1,42 @@
 {
   "agent": "thinker",
-  "model": "qwen3_0.6b",
-  "dtype": "q4f16",
-  "max_new_tokens": 320,
-  "system_prompt": "You are part of a small harness that watches folders. You are shown one file that has just arrived. Say in two or three sentences what it appears to be and what the harness should do with it. Be brief and concrete.",
+  "host": "http://127.0.0.1:11434",
+  "rungs": [
+    {
+      "model": "smollm2:360m-instruct-q4_K_M",
+      "thinks": false,
+      "budget": 1200,
+      "num_predict": 256,
+      "follows_talk": false
+    },
+    {
+      "model": "qwen3:0.6b",
+      "thinks": true,
+      "budget": 4000,
+      "num_predict": 1024,
+      "follows_talk": true
+    },
+    {
+      "model": "qwen3:1.7b",
+      "thinks": true,
+      "budget": 16000,
+      "num_predict": 1024,
+      "follows_talk": true
+    }
+  ],
+  "prompts": {
+    "note": "You are part of a small harness that watches folders. You are shown one file that has just arrived. Say in two or three sentences what it appears to be and what the harness should do with it. Be brief and concrete.",
+    "reply": "You are a small offline program called the harness, talking with this person. Reply as yourself in one to three short sentences, warm and plain. Their name and their work are theirs, not yours.",
+    "reply_picture": "You are a small offline program called the harness, talking with this person. They sent a picture; notes below say what was seen in it. Tell them what is in it, in one to three short sentences, warm and plain."
+  },
   "allowed_reason": "thought about it",
   "empty_reason": "there was nothing to think about",
-  "end_of_thinking": "</think>",
-  "models": "./models"
+  "unknown_job": "it was not asked for anything it can answer",
+  "no_rung_reason": "there is no bigger model to try",
+  "too_long_reason": "that is too much for this model to read",
+  "no_talk_reason": "this model cannot follow a conversation",
+  "unfinished_reason": "it ran out of room before it finished thinking",
+  "nothing_said_reason": "it finished thinking but said nothing",
+  "no_server_reason": "the model server is not answering - start ollama, then run npm run init",
+  "end_of_thinking": "</think>"
 }

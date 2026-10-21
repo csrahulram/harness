@@ -1,27 +1,92 @@
-// Harness entry: watches the folders, and hands anything arriving in input to the default workflow.
+// Harness entry: watches the folders, mints a task for anything new, and passes each step on.
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import config from "./config.json" with { type: "json" };
-import { makeFolders } from "./modules/make_folders.ts";
-import { reportChange } from "./modules/report_change.ts";
-import { reportOutcome } from "./modules/report_outcome.ts";
-import { watchFolders } from "./modules/watch_folders.ts";
-import * as workflow from "./workflows/default/main.ts";
+import { closeTask } from "./common/close_task.ts";
+import { findSession } from "./common/find_session.ts";
+import { findStep } from "./common/find_step.ts";
+import { makeFolders } from "./common/make_folders.ts";
+import { makeStep, type Step } from "./common/make_step.ts";
+import { makeTaskId } from "./common/make_task_id.ts";
+import { readStep } from "./common/read_step.ts";
+import { reportChange } from "./common/report_change.ts";
+import { reportOutcome } from "./common/report_outcome.ts";
+import { watchFolders } from "./common/watch_folders.ts";
+import { pickWorkflow } from "./workflows/pick_workflow.ts";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const workspace = join(root, config.workspace);
 
-makeFolders(workspace, config.folders);
-watchFolders(workspace, config.folders, config.settle_ms, (folder, file) => {
-  console.log(reportChange(folder, file));
-  if (folder !== config.starts_work) {
+function pass(step: Step): void {
+  const workflow = pickWorkflow(step.next);
+  if (!workflow) {
+    console.log(reportChange(step.task, `no workflow is called ${step.next}`));
     return;
   }
+  const scratchpad = join(workspace, config.steps_folder);
   workflow
-    .run({ workspace, folder, file })
-    .then((outcome) => console.log(reportOutcome(outcome)))
-    .catch((trouble: unknown) => console.log(reportChange(folder, `failed: ${String(trouble)}`)));
-});
+    .run({ workspace, step })
+    .then((outcome) => {
+      console.log(reportOutcome(outcome));
+      if (!outcome.allowed) {
+        closeTask(scratchpad, step, step.next, outcome.reason);
+      }
+    })
+    .catch((trouble: unknown) => {
+      console.log(reportChange(step.task, `failed: ${String(trouble)}`));
+      closeTask(scratchpad, step, step.next, String(trouble));
+    });
+}
+
+function unitOf(folder: string, file: string): string {
+  if (folder !== config.starts_work) {
+    return file;
+  }
+  return findSession(file, config.session_prefix) ?? file;
+}
+
+makeFolders(workspace, config.folders);
+watchFolders(
+  workspace,
+  config.folders,
+  config.settle_ms,
+  config.repeat_ms,
+  unitOf,
+  (folder, unit) => {
+    console.log(reportChange(folder, unit));
+    if (folder === config.starts_work) {
+      const named = unit.startsWith(config.session_prefix);
+      pass(
+        makeStep({
+          task: named ? unit : makeTaskId(config.task_prefix),
+          step: 0,
+          about: `${folder}/${unit}`,
+          next: config.first_workflow,
+          from: config.watcher,
+          note: config.arrived_note,
+        }),
+      );
+      return;
+    }
+    if (folder !== config.steps_folder) {
+      return;
+    }
+    if (!findStep(unit)) {
+      return;
+    }
+    const step = readStep(join(workspace, folder, unit));
+    if (!step || step.done) {
+      return;
+    }
+    if (step.step >= config.max_steps) {
+      console.log(
+        reportChange(step.task, `stopped at step ${step.step}; that is as far as it goes`),
+      );
+      return;
+    }
+    pass(step);
+  },
+);
 
 console.log(`watching ${config.folders.join(", ")}; work starts from ${config.starts_work}`);

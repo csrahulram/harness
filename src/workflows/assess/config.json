@@ -1,0 +1,10 @@
+{
+  "workflow": "assess",
+  "reports_to": "check",
+  "objects_job": "objects",
+  "caption_job": "caption",
+  "limits": { "least_coverage": 0.08, "most_coverage": 0.92, "most_offset": 0.35 },
+  "note": "assessed the photo; have someone check it",
+  "reason": "measured the subject in the photo",
+  "scratchpad": "scratchpad"
+}

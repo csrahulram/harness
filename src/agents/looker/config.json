@@ -1,0 +1,20 @@
+{
+  "agent": "looker",
+  "model": "florence_2_base_ft",
+  "dtype": {
+    "embed_tokens": "q4f16",
+    "vision_encoder": "q4f16",
+    "encoder_model": "q4f16"
+  },
+  "decoder_dtype": "q4",
+  "jobs": {
+    "ocr": "<OCR>",
+    "caption": "<CAPTION>",
+    "objects": "<OD>"
+  },
+  "max_new_tokens": 128,
+  "done_reason": "looked at the photo",
+  "unknown_job": "it was not asked for anything it can do",
+  "no_image_reason": "there was no photo to look at",
+  "models": "./models"
+}

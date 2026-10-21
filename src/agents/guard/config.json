@@ -1,9 +1,42 @@
 {
   "agent": "guard",
-  "model": "deberta_v3_base_prompt_injection_v2",
+  "jobs": {
+    "text": {
+      "model": "horizon_prompt_injection_guard_small",
+      "how": "classify",
+      "dtype": "q8"
+    },
+    "code": {
+      "model": "horizon_prompt_injection_guard_small",
+      "how": "classify",
+      "dtype": "q8"
+    },
+    "image": {
+      "model": "florence_2_base_ft",
+      "how": "read"
+    }
+  },
+  "reads_how": "read",
+  "judges_with": "text",
+  "ocr_job": "<OCR>",
+  "no_text": "0",
+  "dtype": {
+    "embed_tokens": "q4f16",
+    "vision_encoder": "q4f16",
+    "encoder_model": "q4f16"
+  },
+  "decoder_dtype": "q4",
+  "max_new_tokens": 128,
   "injection_label": "INJECTION",
   "blocked_reason": "that reads like a prompt injection",
   "allowed_reason": "nothing suspicious in it",
+  "painted_reason": "there is text on that picture and it reads like a prompt injection",
+  "clean_picture_reason": "the words on that picture look harmless",
+  "bare_picture_reason": "nothing is written on that picture",
   "empty_reason": "there was no text to check",
-  "models": "./models"
+  "no_guard_reason": "there is no guard here for that kind of work",
+  "no_image_reason": "there was no picture to look at",
+  "no_model": "none",
+  "models": "./models",
+  "least_words": 3
 }

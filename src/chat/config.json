@@ -1,0 +1,22 @@
+{
+  "port": 8080,
+  "bind": "127.0.0.1",
+  "page": "page",
+  "workspace": "workspace",
+  "input": "input",
+  "scratchpad": "scratchpad",
+  "session_prefix": "session_",
+  "prompt_file": "prompt.txt",
+  "picture_name": "picture",
+  "pictures": [".png", ".jpg", ".jpeg", ".webp"],
+  "max_chars": 4000,
+  "poll_ms": 700,
+  "bad_picture": "that kind of picture is not read here",
+  "nothing_said": "there was nothing to send",
+  "output": "output",
+  "turn_mark": "__t",
+  "history_file": "history.json",
+  "history_chars": 2000,
+  "them_role": "user",
+  "me_role": "assistant"
+}

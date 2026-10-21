@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Harness</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <aside>
+      <div class="side-top">
+        <h2>Sessions</h2>
+        <button id="fresh" type="button" title="start a new session">New</button>
+      </div>
+      <ul id="sessions"></ul>
+    </aside>
+    <div class="column">
+      <header>
+        <h1>Harness</h1>
+        <p>
+          Everything you send is written into <code>workspace/input</code> and answered by the
+          chain.
+        </p>
+      </header>
+      <main id="thread"></main>
+      <form id="ask">
+        <label id="clip" for="picture" title="attach a picture">+</label>
+        <input id="picture" type="file" accept="image/png,image/jpeg,image/webp" hidden />
+        <textarea
+          id="said"
+          rows="1"
+          placeholder="Say something, or attach a picture - Enter sends, Ctrl-Enter makes a new line"
+        ></textarea>
+        <button id="send" type="submit">Send</button>
+      </form>
+      <p id="attached" hidden></p>
+    </div>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>

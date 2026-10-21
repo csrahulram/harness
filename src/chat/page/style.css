@@ -1,0 +1,250 @@
+:root {
+  --page: #fbfbf9;
+  --side: #f4f3ef;
+  --ink: #1b1b1a;
+  --quiet: #6d6d68;
+  --line: #e2e1dc;
+  --mine: #edeae3;
+  --theirs: #ffffff;
+  --stop: #b4432f;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --page: #17171a;
+    --side: #1c1c20;
+    --ink: #ececea;
+    --quiet: #9a9a95;
+    --line: #2e2e33;
+    --mine: #24242a;
+    --theirs: #1e1e22;
+    --stop: #e0775f;
+  }
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  height: 100vh;
+  display: flex;
+  background: var(--page);
+  color: var(--ink);
+  font:
+    16px/1.55 ui-sans-serif,
+    system-ui,
+    sans-serif;
+}
+aside {
+  width: 15rem;
+  flex: none;
+  background: var(--side);
+  border-right: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.side-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.9rem 0.85rem 0.6rem;
+  border-bottom: 1px solid var(--line);
+}
+h2 {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--quiet);
+  margin: 0;
+}
+#sessions {
+  list-style: none;
+  margin: 0;
+  padding: 0.4rem;
+  overflow-y: auto;
+  flex: 1;
+}
+#sessions li {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  border-radius: 0.35rem;
+  padding: 0.4rem 0.45rem;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+#sessions li:hover {
+  background: var(--mine);
+}
+#sessions li.open {
+  background: var(--mine);
+  box-shadow: inset 2px 0 0 var(--quiet);
+}
+#sessions .what {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+#sessions .when {
+  color: var(--quiet);
+  font-size: 0.72rem;
+  font-family: ui-monospace, monospace;
+}
+#sessions .drop {
+  border: 0;
+  background: none;
+  color: var(--quiet);
+  cursor: pointer;
+  padding: 0 0.2rem;
+  font-size: 0.95rem;
+  line-height: 1;
+}
+#sessions .drop:hover {
+  color: var(--stop);
+}
+.column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+header {
+  padding: 1.2rem 1.25rem 0.8rem;
+  border-bottom: 1px solid var(--line);
+}
+h1 {
+  font-size: 1.1rem;
+  margin: 0;
+}
+header p {
+  margin: 0.35rem 0 0;
+  color: var(--quiet);
+  font-size: 0.85rem;
+}
+code {
+  font-family: ui-monospace, monospace;
+  font-size: 0.85em;
+}
+main {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.25rem;
+}
+.turn {
+  margin-bottom: 1.3rem;
+  max-width: 46rem;
+}
+.who {
+  font-size: 0.78rem;
+  color: var(--quiet);
+  margin-bottom: 0.3rem;
+}
+.bubble {
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--line);
+  border-radius: 0.5rem;
+  white-space: pre-wrap;
+}
+.mine .bubble {
+  background: var(--mine);
+}
+.theirs .bubble {
+  background: var(--theirs);
+}
+.stopped .bubble {
+  color: var(--stop);
+  border-color: var(--stop);
+}
+.shot {
+  display: block;
+  max-width: 13rem;
+  border-radius: 0.35rem;
+  margin-bottom: 0.5rem;
+}
+.trail {
+  margin: 0 0 0.55rem;
+  padding: 0;
+  list-style: none;
+  color: var(--quiet);
+  font-size: 0.82rem;
+}
+.trail li {
+  margin-bottom: 0.5rem;
+  padding-left: 0.7rem;
+  border-left: 2px solid var(--line);
+}
+.trail .head {
+  font-family: ui-monospace, monospace;
+  font-size: 0.76rem;
+  letter-spacing: 0.01em;
+}
+.trail .what {
+  white-space: pre-wrap;
+}
+form {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-end;
+  padding: 0.75rem 1.25rem 1rem;
+  border-top: 1px solid var(--line);
+}
+#clip {
+  cursor: pointer;
+  border: 1px solid var(--line);
+  border-radius: 0.4rem;
+  width: 2.3rem;
+  height: 2.3rem;
+  display: grid;
+  place-items: center;
+  font-size: 1.1rem;
+  color: var(--quiet);
+  flex: none;
+}
+textarea {
+  flex: 1;
+  resize: none;
+  font: inherit;
+  color: inherit;
+  background: var(--theirs);
+  border: 1px solid var(--line);
+  border-radius: 0.4rem;
+  padding: 0.55rem 0.6rem;
+  max-height: 9rem;
+}
+button {
+  font: inherit;
+  padding: 0.55rem 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: 0.4rem;
+  background: var(--mine);
+  color: inherit;
+  cursor: pointer;
+  flex: none;
+}
+#fresh {
+  padding: 0.25rem 0.55rem;
+  font-size: 0.78rem;
+}
+button[disabled] {
+  opacity: 0.5;
+  cursor: default;
+}
+#attached {
+  margin: 0;
+  padding: 0 1.25rem 0.7rem;
+  font-size: 0.8rem;
+  color: var(--quiet);
+}
+
+#sessions .trouble {
+  color: var(--stop);
+  font-size: 0.78rem;
+  line-height: 1.4;
+  cursor: default;
+}
+
+.trail .aside {
+  border-left-color: var(--stop);
+  font-style: italic;
+}

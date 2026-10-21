@@ -1,43 +1,30 @@
-// Default workflow: works out what arrived, guards it, thinks about it, writes the thought down.
+// Default workflow: starts every task, and is the only one allowed to publish a finished one.
 import { join } from "node:path";
 
-import * as guard from "../../agents/guard/main.ts";
-import * as thinker from "../../agents/thinker/main.ts";
-import { makeOutcome, type Outcome } from "../../modules/make_outcome.ts";
-import { readText } from "../../modules/read_text.ts";
-import { writeResult } from "../../modules/write_result.ts";
+import { isFolder } from "../../common/is_folder.ts";
+import { makeOutcome, type Outcome } from "../../common/make_outcome.ts";
+import type { Task } from "../../common/make_step.ts";
 import config from "./config.json" with { type: "json" };
+import { beginPhoto } from "./modules/begin_photo.ts";
 import { detectType } from "./modules/detect_type.ts";
+import { guardSession } from "./modules/guard_session.ts";
+import { thinkText } from "./modules/think_text.ts";
+import { validateTask } from "./modules/validate_task.ts";
 
-export type Change = { workspace: string; folder: string; file: string };
-
-export async function run(change: Change): Promise<Outcome> {
+export async function run(task: Task): Promise<Outcome> {
   const start = performance.now();
-  const kind = detectType(change.file, config.kinds, config.unknown_kind);
-  if (kind === config.unknown_kind) {
-    return makeOutcome(false, config.unknown_reason, config.workflow, kind, start);
+  if (task.step.step > 0) {
+    return validateTask(task, start);
   }
-  if (kind !== config.reads_kind) {
-    return makeOutcome(false, `${kind} is not readable as text yet`, config.workflow, kind, start);
+  if (isFolder(join(task.workspace, task.step.about))) {
+    return guardSession(task, start);
   }
-
-  const text = readText(join(change.workspace, change.folder, change.file), config.max_chars);
-  const guarded = await guard.run({ text });
-  if (!guarded.allowed) {
-    return makeOutcome(false, guarded.reason, config.workflow, kind, start);
+  const kind = detectType(task.step.about, config.kinds, config.unknown_kind);
+  if (kind === config.reads_kind) {
+    return thinkText(task, kind, start);
   }
-
-  const thought = await thinker.run({ text });
-  if (!thought.allowed) {
-    return makeOutcome(false, thought.reason, config.workflow, kind, start);
+  if (kind === config.photo_kind) {
+    return beginPhoto(task, kind, start);
   }
-
-  writeResult(join(change.workspace, config.result), change.file, thought.text ?? "");
-  return makeOutcome(
-    true,
-    `${guarded.reason}, then ${thought.reason}`,
-    config.workflow,
-    kind,
-    start,
-  );
+  return makeOutcome(false, config.unknown_reason, config.workflow, kind, start);
 }

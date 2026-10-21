@@ -1,0 +1,8 @@
+{
+  "workflow": "check",
+  "reports_to": "answer",
+  "question": "Is there a {subject} in this photo, and is the whole of it visible? Answer in one short sentence.",
+  "note": "checked by a second pair of eyes; now write the reply",
+  "reason": "asked a second model to check it",
+  "scratchpad": "scratchpad"
+}

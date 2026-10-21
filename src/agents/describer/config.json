@@ -1,0 +1,14 @@
+{
+  "agent": "describer",
+  "model": "smolvlm_256m_instruct",
+  "dtype": {
+    "embed_tokens": "q4f16",
+    "vision_encoder": "q4f16",
+    "decoder_model_merged": "q4f16"
+  },
+  "max_new_tokens": 96,
+  "done_reason": "described the photo",
+  "no_image_reason": "there was no photo to describe",
+  "no_question_reason": "it was not asked anything",
+  "models": "./models"
+}

@@ -1,0 +1,69 @@
+{
+  "host": "https://huggingface.co",
+  "folder": "models",
+  "models": [
+    {
+      "folder": "horizon_prompt_injection_guard_small",
+      "from": "Horizon-Labs/prompt-injection-guard-small",
+      "files": [
+        "config.json",
+        "onnx/model_quantized.onnx",
+        "special_tokens_map.json",
+        "tokenizer.json",
+        "tokenizer_config.json"
+      ]
+    },
+    {
+      "folder": "florence_2_base_ft",
+      "from": "onnx-community/Florence-2-base-ft",
+      "files": [
+        "added_tokens.json",
+        "config.json",
+        "generation_config.json",
+        "merges.txt",
+        "onnx/decoder_model_merged_q4.onnx",
+        "onnx/embed_tokens_q4f16.onnx",
+        "onnx/encoder_model_q4f16.onnx",
+        "onnx/vision_encoder_q4f16.onnx",
+        "preprocessor_config.json",
+        "special_tokens_map.json",
+        "tokenizer.json",
+        "tokenizer_config.json",
+        "vocab.json"
+      ]
+    },
+    {
+      "folder": "smolvlm_256m_instruct",
+      "from": "HuggingFaceTB/SmolVLM-256M-Instruct",
+      "files": [
+        "added_tokens.json",
+        "chat_template.json",
+        "config.json",
+        "generation_config.json",
+        "merges.txt",
+        "onnx/decoder_model_merged_q4f16.onnx",
+        "onnx/embed_tokens_q4f16.onnx",
+        "onnx/vision_encoder_q4f16.onnx",
+        "preprocessor_config.json",
+        "processor_config.json",
+        "special_tokens_map.json",
+        "tokenizer.json",
+        "tokenizer_config.json",
+        "vocab.json"
+      ]
+    }
+  ],
+  "getting": "getting",
+  "have": "already here",
+  "missed": "could not be fetched",
+  "done": "every model is in place",
+  "served": {
+    "host": "http://127.0.0.1:11434",
+    "models": ["smollm2:360m-instruct-q4_K_M", "qwen3:0.6b", "qwen3:1.7b"],
+    "pulling": "pulling",
+    "have": "already served",
+    "no_server": "no model server at",
+    "hint": "install ollama, start it, then run npm run init again"
+  },
+  "weights_done": "every downloaded model is in place"
+}
