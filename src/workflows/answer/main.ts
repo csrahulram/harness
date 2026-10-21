@@ -17,12 +17,17 @@ export async function run(task: Task): Promise<Outcome> {
     nothing: config.nothing_said,
     notes: config.notes_open,
   });
-  const job = task.step.facts.picture ? config.picture_job : config.job;
+  const job = task.step.facts.picture
+    ? config.picture_job
+    : task.step.facts.looked || task.step.facts.not_found
+      ? config.looked_job
+      : config.job;
   const { record, said } = await climbRungs(
     job,
     ask,
     readSpoken(task.step.facts.history),
     thinker.settings.rungs.length,
+    (config.starts_at as { [job: string]: number })[job] ?? 0,
   );
   if (!record.allowed) {
     return makeOutcome(false, record.reason, config.workflow, kind, start);

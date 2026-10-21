@@ -37,5 +37,59 @@
   "reads_kinds": ["text", "code"],
   "note_rung": 1,
   "my_role": "assistant",
-  "blocked_as": "BLOCKED - {why}"
+  "blocked_as": "BLOCKED - {why}",
+  "looks_up_with": "lookup",
+  "chores": [
+    {
+      "tool": "clock",
+      "job": "now",
+      "when": [
+        "what time",
+        "what is time",
+        "time in ",
+        "current time",
+        "what is the date",
+        "what date",
+        "what day is",
+        "todays date",
+        "today's date"
+      ]
+    },
+    {
+      "tool": "web",
+      "job": "search",
+      "when": [
+        "search the web",
+        "search for",
+        "look up",
+        "who is selling",
+        "where can i buy",
+        "latest",
+        "news about",
+        "what is ",
+        "what are ",
+        "who is ",
+        "who was ",
+        "when was ",
+        "where is ",
+        "define ",
+        "tell me about "
+      ],
+      "unless": [
+        "my",
+        "your",
+        "our",
+        "we",
+        "i",
+        "this",
+        "that",
+        "it",
+        "these",
+        "those",
+        "you",
+        "harness"
+      ]
+    }
+  ],
+  "gone_reason": "what arrived is not there any more"
 }

@@ -1,0 +1,29 @@
+{
+  "tool": "clock",
+  "zones": {
+    "india": "Asia/Kolkata",
+    "ist": "Asia/Kolkata",
+    "delhi": "Asia/Kolkata",
+    "mumbai": "Asia/Kolkata",
+    "chennai": "Asia/Kolkata",
+    "london": "Europe/London",
+    "uk": "Europe/London",
+    "britain": "Europe/London",
+    "new york": "America/New_York",
+    "usa": "America/New_York",
+    "california": "America/Los_Angeles",
+    "tokyo": "Asia/Tokyo",
+    "japan": "Asia/Tokyo",
+    "singapore": "Asia/Singapore",
+    "dubai": "Asia/Dubai",
+    "germany": "Europe/Berlin",
+    "berlin": "Europe/Berlin",
+    "paris": "Europe/Paris",
+    "france": "Europe/Paris",
+    "sydney": "Australia/Sydney",
+    "australia": "Australia/Sydney",
+    "utc": "UTC"
+  },
+  "told": "read the clock on this computer",
+  "unknown_job": "the clock was not asked for anything it can give"
+}

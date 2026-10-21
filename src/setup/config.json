@@ -51,6 +51,18 @@
         "tokenizer_config.json",
         "vocab.json"
       ]
+    },
+    {
+      "folder": "all_minilm_l6_v2",
+      "from": "Xenova/all-MiniLM-L6-v2",
+      "files": [
+        "config.json",
+        "onnx/model_quantized.onnx",
+        "special_tokens_map.json",
+        "tokenizer.json",
+        "tokenizer_config.json",
+        "vocab.txt"
+      ]
     }
   ],
   "getting": "getting",

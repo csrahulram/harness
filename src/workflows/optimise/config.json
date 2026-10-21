@@ -1,0 +1,18 @@
+{
+  "workflow": "optimise",
+  "reports_to": "default",
+  "job": "condense",
+  "rung": 2,
+  "most_chars": 2000,
+  "keeps_part": 0.2,
+  "recap_opens": "Earlier in this talk:",
+  "recap_role": "assistant",
+  "kept_note": "nothing needed trimming",
+  "cut_note": "trimmed the talk back and kept a recap",
+  "kept_reason": "left the talk as it was",
+  "cut_reason": "condensed what was said before",
+  "no_recap_reason": "could not condense the talk, so kept the newest part only",
+  "scratchpad": "scratchpad",
+  "input": "input",
+  "carry_file": "carry.json"
+}

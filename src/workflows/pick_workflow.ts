@@ -5,10 +5,19 @@ import * as answer from "./answer/main.ts";
 import * as assess from "./assess/main.ts";
 import * as check from "./check/main.ts";
 import * as fallback from "./default/main.ts";
+import * as lookup from "./lookup/main.ts";
+import * as optimise from "./optimise/main.ts";
 
 export type Workflow = { run: (task: Task) => Promise<Outcome> };
 
 export function pickWorkflow(name: string): Workflow | undefined {
-  const all: { [name: string]: Workflow } = { default: fallback, answer, assess, check };
+  const all: { [name: string]: Workflow } = {
+    default: fallback,
+    answer,
+    assess,
+    check,
+    lookup,
+    optimise,
+  };
   return all[name];
 }

@@ -9,10 +9,11 @@ export async function climbRungs(
   ask: string,
   history: { role: string; content: string }[],
   rungs: number,
+  from = 0,
 ): Promise<{ record: Record; said: Said[] }> {
   const said: Said[] = [];
   let last: Record | undefined;
-  for (let rung = 0; rung < rungs; rung += 1) {
+  for (let rung = from; rung < rungs; rung += 1) {
     const got = await thinker.run({ job, text: ask, history, rung });
     said.push(noteSaid(got));
     last = got;

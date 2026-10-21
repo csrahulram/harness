@@ -1,10 +1,12 @@
 // Harness entry: watches the folders, mints a task for anything new, and passes each step on.
+import { existsSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import config from "./config.json" with { type: "json" };
 import { closeTask } from "./common/close_task.ts";
 import { findSession } from "./common/find_session.ts";
+import { findWaiting } from "./common/find_waiting.ts";
 import { findStep } from "./common/find_step.ts";
 import { makeFolders } from "./common/make_folders.ts";
 import { makeStep, type Step } from "./common/make_step.ts";
@@ -57,6 +59,9 @@ watchFolders(
     console.log(reportChange(folder, unit));
     if (folder === config.starts_work) {
       const named = unit.startsWith(config.session_prefix);
+      if (named && existsSync(join(workspace, config.steps_folder, unit))) {
+        return;
+      }
       pass(
         makeStep({
           task: named ? unit : makeTaskId(config.task_prefix),
@@ -88,5 +93,23 @@ watchFolders(
     pass(step);
   },
 );
+
+for (const waiting of findWaiting(
+  join(workspace, config.starts_work),
+  join(workspace, config.steps_folder),
+  config.session_prefix,
+)) {
+  console.log(reportChange(config.starts_work, `${waiting} was left waiting`));
+  pass(
+    makeStep({
+      task: waiting,
+      step: 0,
+      about: `${config.starts_work}/${waiting}`,
+      next: config.first_workflow,
+      from: config.watcher,
+      note: config.arrived_note,
+    }),
+  );
+}
 
 console.log(`watching ${config.folders.join(", ")}; work starts from ${config.starts_work}`);

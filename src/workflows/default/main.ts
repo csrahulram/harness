@@ -1,4 +1,5 @@
 // Default workflow: starts every task, and is the only one allowed to publish a finished one.
+import { existsSync } from "node:fs";
 import { join } from "node:path";
 
 import { isFolder } from "../../common/is_folder.ts";
@@ -16,8 +17,12 @@ export async function run(task: Task): Promise<Outcome> {
   if (task.step.step > 0) {
     return validateTask(task, start);
   }
-  if (isFolder(join(task.workspace, task.step.about))) {
+  const where = join(task.workspace, task.step.about);
+  if (isFolder(where)) {
     return guardSession(task, start);
+  }
+  if (!existsSync(where)) {
+    return makeOutcome(false, config.gone_reason, config.workflow, config.unknown_kind, start);
   }
   const kind = detectType(task.step.about, config.kinds, config.unknown_kind);
   if (kind === config.reads_kind) {

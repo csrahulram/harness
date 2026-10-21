@@ -1,0 +1,9 @@
+{
+  "agent": "sifter",
+  "model": "all_minilm_l6_v2",
+  "dtype": "q8",
+  "most_chars": 1500,
+  "done_reason": "sorted what was found by how near it is",
+  "empty_reason": "there was nothing to sort",
+  "models": "./models"
+}

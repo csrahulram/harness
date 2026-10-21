@@ -9,6 +9,7 @@ import { dropSession } from "./modules/drop_session.ts";
 import { findPicture } from "./modules/find_picture.ts";
 import { listSessions } from "./modules/list_sessions.ts";
 import { readBody } from "./modules/read_body.ts";
+import { readCarry } from "./modules/read_carry.ts";
 import { readPicture } from "./modules/read_picture.ts";
 import { readSession } from "./modules/read_session.ts";
 import { readState } from "./modules/read_state.ts";
@@ -43,11 +44,23 @@ createServer((request, response) => {
           return;
         }
         const session = sent.session ?? "";
-        const before = session ? readSession(scratchpad, session, config.turn_mark) : [];
-        const { history, forgot } = buildHistory(before, config.history_chars, {
+        const carried = session
+          ? readCarry(
+              join(workspace, config.input),
+              scratchpad,
+              session,
+              config.turn_mark,
+              config.carry_file,
+            )
+          : [];
+        const before =
+          session && carried.length === 0 ? readSession(scratchpad, session, config.turn_mark) : [];
+        const older = buildHistory(before, config.history_chars, {
           them: config.them_role,
           me: config.me_role,
         });
+        const history = carried.length > 0 ? carried : older.history;
+        const forgot = carried.length > 0 ? 0 : older.forgot;
         const task = startTurn(
           join(workspace, config.input),
           { ...names, prompt: config.prompt_file, history: config.history_file },

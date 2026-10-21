@@ -1,0 +1,22 @@
+{
+  "tool": "web",
+  "jobs": {
+    "search": "look things up",
+    "read": "fetch one page as plain words"
+  },
+  "sources": {
+    "wikipedia": "https://en.wikipedia.org/w/api.php",
+    "duckduckgo": "https://api.duckduckgo.com/"
+  },
+  "most_results": 4,
+  "most_chars": 20000,
+  "wait_ms": 15000,
+  "agent": "Mozilla/5.0 (compatible; harness/0.1)",
+  "allowed_schemes": ["http:", "https:"],
+  "found_reason": "looked it up",
+  "read_reason": "read the page",
+  "nothing_reason": "nothing came back for that",
+  "no_query_reason": "it was not given anything to look for",
+  "bad_url_reason": "that address is not one this may fetch",
+  "unreachable_reason": "that page could not be fetched"
+}

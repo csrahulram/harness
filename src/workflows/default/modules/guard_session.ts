@@ -1,4 +1,4 @@
-// Guards everything a session brought in: every file, and every turn inside the history on its own.
+// Guards what a session brought in. What it remembers was guarded when it arrived, and is let be.
 import { readdirSync } from "node:fs";
 import { join } from "node:path";
 
@@ -6,11 +6,11 @@ import * as guard from "../../../agents/guard/main.ts";
 import { makeOutcome, type Outcome } from "../../../common/make_outcome.ts";
 import { makeStep, type Said, type Step, type Task } from "../../../common/make_step.ts";
 import { noteSaid } from "../../../common/note_said.ts";
-import { readSpoken } from "../../../common/read_spoken.ts";
 import { readText } from "../../../common/read_text.ts";
 import { writeStep } from "../../../common/write_step.ts";
 import config from "../config.json" with { type: "json" };
 import { detectType } from "./detect_type.ts";
+import { pickJob, type Chore } from "./pick_job.ts";
 
 export async function guardSession(task: Task, start: number): Promise<Outcome> {
   const folder = join(task.workspace, task.step.about);
@@ -27,35 +27,38 @@ export async function guardSession(task: Task, start: number): Promise<Outcome> 
     const where = join(folder, file);
     const reads = config.reads_kinds.includes(found);
     const text = reads ? readText(where, config.max_chars) : "";
-    const past = file === config.history_file;
-    const pieces = past
-      ? readSpoken(text)
-          .filter((turn) => turn.role !== config.my_role)
-          .map((turn) => turn.content)
-      : [reads ? text : ""];
-    for (const piece of pieces) {
-      const checked = await guard.run(
-        reads
-          ? { job: past ? config.reads_kind : found, text: piece }
-          : { job: found, image: where },
-      );
-      spoke.push(noteSaid(checked));
-      if (!checked.allowed) {
-        const why = config.blocked_as.replace("{why}", checked.reason);
-        return makeOutcome(false, why, config.workflow, kind, start);
-      }
-      if (!past && found === config.photo_kind) {
-        facts.words_in_photo = checked.text || config.no_words;
-      }
+    if (file === config.history_file) {
+      facts.history = text;
+      said.push(`${file}, checked when it arrived`);
+      continue;
+    }
+    const checked = await guard.run(reads ? { job: found, text } : { job: found, image: where });
+    spoke.push(noteSaid(checked));
+    if (!checked.allowed) {
+      const why = config.blocked_as.replace("{why}", checked.reason);
+      return makeOutcome(false, why, config.workflow, kind, start);
     }
     said.push(`${file} is ${found}, ok`);
     if (reads) {
-      facts[past ? "history" : "prompt"] = text;
+      facts.prompt = text;
     }
     if (found === config.photo_kind) {
       facts.picture = `${task.step.about}/${file}`;
+      facts.words_in_photo = checked.text || config.no_words;
     }
   }
+  const chore = facts.picture
+    ? undefined
+    : pickJob(String(facts.prompt ?? ""), config.chores as Chore[]);
+  if (chore) {
+    facts.tool = chore.tool;
+    facts.job = chore.job;
+  }
+  const next = facts.picture
+    ? config.first_worker
+    : chore
+      ? config.looks_up_with
+      : config.answers_with;
   writeStep(
     join(task.workspace, config.scratchpad),
     makeStep(
@@ -63,7 +66,7 @@ export async function guardSession(task: Task, start: number): Promise<Outcome> 
         task: task.step.task,
         step: task.step.step + 1,
         about: task.step.about,
-        next: facts.picture ? config.first_worker : config.answers_with,
+        next,
         from: config.workflow,
         note: facts.picture ? config.begun_note : config.said_note,
       },

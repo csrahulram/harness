@@ -18,5 +18,6 @@
   "history_file": "history.json",
   "history_chars": 2000,
   "them_role": "user",
-  "me_role": "assistant"
+  "me_role": "assistant",
+  "carry_file": "carry.json"
 }

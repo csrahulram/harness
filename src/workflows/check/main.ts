@@ -8,19 +8,26 @@ import { noteSaid } from "../../common/note_said.ts";
 import { pickImage } from "../../common/pick_image.ts";
 import { writeStep } from "../../common/write_step.ts";
 import config from "./config.json" with { type: "json" };
+import { weighAnswer } from "./modules/weigh_answer.ts";
 
 export async function run(task: Task): Promise<Outcome> {
   const start = performance.now();
   const kind = String(task.step.facts.kind ?? "image");
   const subject = String(task.step.facts.subject ?? "object");
+  const asked = String(task.step.facts.prompt ?? "").trim();
   const said = await describer.run({
     image: join(task.workspace, pickImage(task.step)),
-    question: config.question.replace("{subject}", subject),
+    question: asked || config.question.replace("{subject}", subject),
   });
   if (!said.allowed) {
     return makeOutcome(false, said.reason, config.workflow, kind, start);
   }
-  const facts: Step["facts"] = { ...task.step.facts, checked: said.text ?? "" };
+  const worth = weighAnswer(said.text ?? "", config.no_use, config.least_chars);
+  const facts: Step["facts"] = { ...task.step.facts, checked: worth };
+  if (!worth) {
+    delete facts.checked;
+    facts.not_told = config.no_help_note;
+  }
   writeStep(
     join(task.workspace, config.scratchpad),
     makeStep(
@@ -30,7 +37,7 @@ export async function run(task: Task): Promise<Outcome> {
         about: task.step.about,
         next: config.reports_to,
         from: config.workflow,
-        note: config.note,
+        note: worth ? config.note : config.no_help_note,
       },
       { facts, said: [noteSaid(said)] },
     ),

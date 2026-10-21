@@ -1,17 +1,26 @@
 {
   "workflow": "answer",
-  "reports_to": "default",
+  "reports_to": "optimise",
   "job": "reply",
   "labels": {
-    "caption": "a model looking at it saw",
-    "labels": "things found in it",
-    "words_in_photo": "words written on it",
-    "checked": "a second model asked about it said"
+    "not_found": "You looked this up and found nothing",
+    "looked": "Looked this up just now",
+    "checked": "Asked your question, a model that can see the picture said",
+    "not_told": "Asked your question, the model that can see could not answer",
+    "caption": "The picture as a whole looks like",
+    "labels": "Things found in it",
+    "words_in_photo": "Words written on it"
   },
   "nothing_said": "(they sent a picture without saying anything)",
-  "note": "answered; have it checked before it goes out",
+  "note": "answered; now tidy what we are carrying",
   "reason": "wrote a reply",
   "scratchpad": "scratchpad",
   "notes_open": "Notes from the harness about the picture they sent, for you to use:",
-  "picture_job": "reply_picture"
+  "picture_job": "reply_picture",
+  "starts_at": {
+    "reply": 0,
+    "reply_looked": 2,
+    "reply_picture": 2
+  },
+  "looked_job": "reply_looked"
 }

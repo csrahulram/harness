@@ -1,8 +1,11 @@
 {
   "workflow": "check",
   "reports_to": "answer",
-  "question": "Is there a {subject} in this photo, and is the whole of it visible? Answer in one short sentence.",
+  "question": "What is in this photo, and what colour is it?",
   "note": "checked by a second pair of eyes; now write the reply",
   "reason": "asked a second model to check it",
-  "scratchpad": "scratchpad"
+  "scratchpad": "scratchpad",
+  "no_use": ["none", "yes", "no", "n/a", "unknown", "nothing"],
+  "least_chars": 4,
+  "no_help_note": "a second model was asked and could not tell"
 }
