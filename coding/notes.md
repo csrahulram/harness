@@ -45,3 +45,51 @@ tuning on mechanical signals alone would have called that a win. So:
 ## Attempts
 
 Nothing tried yet. Phase 1 only measures and reports; nothing is written.
+
+---
+
+## Two instances
+
+The live harness and the coder are separate programs in separate folders, talking over http on
+`127.0.0.1:8099`. Live measures itself and hands over a note; the coder fixes code in its own
+copy, where a restart costs the person nothing.
+
+```
+D:\Projects\harness-master    live. npm run dev, npm run chat
+D:\Projects\harness-coder     the coder. npm run coder
+```
+
+The coder is a clone of the live repo with `node_modules` and each `models/<name>` folder
+junctioned across, so nothing is downloaded twice and Ollama is one shared server either way.
+Set up once, by hand:
+
+```
+git clone harness-master harness-coder
+New-Item -ItemType Junction -Path harness-coder\node_modules -Target harness-master\node_modules
+# and one per models/<name>
+```
+
+**Why two folders and not two processes in one.** `npm run dev` watches `src/`, so a harness that
+edits its own source restarts itself mid-task. Separating the folders removes the race rather than
+working around it, and it means the live instance never runs code that has not passed its checks.
+
+## A note says what good looks like
+
+A check is a question, where its answer should come from, and what the answer must and must not
+contain. All of it written by a person, in [checks.json](checks.json), so it can be re-run forever
+and never needs a model's opinion.
+
+Finding a failure needs neither a model nor the archive: ask `pickJob` which tool the words would
+actually reach, and compare that to where the check says they belong.
+
+**The first three came out of the code, not out of a guess.** The clock's phrase list is
+`"what time"`, `"what is time"`, `"time in "`. So:
+
+| asked               | reaches                                                  | should reach |
+| ------------------- | -------------------------------------------------------- | ------------ |
+| "what is the time?" | `web` - it falls through to the web chore's `"what is "` | `clock`      |
+| "tell me the time"  | nothing, so a model invents one                          | `clock`      |
+| "whats the time"    | nothing                                                  | `clock`      |
+
+The fix is a phrase in `chores.1.when` - one key in one config file, which is the size of job a
+1.5B model can do.
