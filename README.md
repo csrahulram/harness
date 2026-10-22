@@ -86,7 +86,12 @@ A warm chat turn takes about a second.
 
 ## Honest limits
 
-- **It has no memory between sessions**, and no tools. It cannot search the web or read your files.
+- **It has no memory between sessions.** It carries a condensed recap within one conversation
+  and forgets it when the session ends.
+- **Nothing caps what a tool puts into the context.** Asked the time, it once spent 88.6% of the
+  window on an encyclopaedia entry about time and answered that it had been told nothing useful.
+  Click **context** under any reply to see the blocks; [coding/context.md](coding/context.md)
+  explains what they are.
 - **The ladder climbs on capacity, not quality.** Nothing judges whether an answer is right.
 - **No model this size builds a 3D mesh.** The picture workflows judge and describe photographs;
   real reconstruction would be another step, filled by a real tool.
