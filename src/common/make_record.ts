@@ -1,4 +1,6 @@
 // Builds the record every agent returns, so they all answer in the same shape.
+import type { Block } from "./make_step.ts";
+
 export type Record = {
   allowed: boolean;
   reason: string;
@@ -9,6 +11,8 @@ export type Record = {
   score?: number;
   facts?: { [name: string]: string | number | boolean };
   climb?: boolean;
+  sent?: Block[];
+  room?: number;
 };
 
 export function makeRecord(

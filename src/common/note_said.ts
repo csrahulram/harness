@@ -9,5 +9,6 @@ export function noteSaid(record: Record): Said {
     reason: record.reason,
     text: record.text ?? "",
     seconds: record.seconds,
+    ...(record.sent ? { sent: record.sent, room: record.room } : {}),
   };
 }

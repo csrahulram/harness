@@ -40,5 +40,11 @@
   "unfinished_reason": "it ran out of room before it finished thinking",
   "nothing_said_reason": "it finished thinking but said nothing",
   "no_server_reason": "the model server is not answering - start ollama, then run npm run init",
-  "end_of_thinking": "</think>"
+  "end_of_thinking": "</think>",
+  "blocks": {
+    "system": "System Prompt",
+    "them": "User Prompt",
+    "me": "Assistant Response",
+    "asked": "User Prompt + Notes"
+  }
 }

@@ -1,4 +1,5 @@
 // Builds one turn in the thread, and hands back the few ways it is allowed to change later.
+import { makeSaid } from "./make_said.js";
 export function makeTurn(who, words, shot) {
   const turn = document.createElement("section");
   turn.className = `turn ${who === "You" ? "mine" : "theirs"}`;
@@ -49,18 +50,6 @@ export function makeTurn(who, words, shot) {
       text.textContent = why;
     },
   };
-}
-
-function makeSaid(said) {
-  const line = document.createElement("li");
-  const head = document.createElement("div");
-  head.className = "head";
-  head.textContent = `${said.agent} - ${said.model}  ${said.seconds}s`;
-  const what = document.createElement("div");
-  what.className = "what";
-  what.textContent = said.text ? said.text : said.reason;
-  line.append(head, what);
-  return line;
 }
 
 function makeAside(many) {

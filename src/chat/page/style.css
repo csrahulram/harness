@@ -7,6 +7,10 @@
   --mine: #edeae3;
   --theirs: #ffffff;
   --stop: #b4432f;
+  --block-system: #7aa6d8;
+  --block-user: #d8c37a;
+  --block-tool: #7fc0a3;
+  --block-me: #c99ad0;
 }
 @media (prefers-color-scheme: dark) {
   :root {
@@ -18,6 +22,10 @@
     --mine: #24242a;
     --theirs: #1e1e22;
     --stop: #e0775f;
+    --block-system: #5d87b8;
+    --block-user: #b39f52;
+    --block-tool: #4f9b79;
+    --block-me: #a071a8;
   }
 }
 * {
@@ -247,4 +255,84 @@ button[disabled] {
 .trail .aside {
   border-left-color: var(--stop);
   font-style: italic;
+}
+
+.context {
+  margin-top: 0.4rem;
+}
+.contexthead {
+  font-family: ui-monospace, monospace;
+  font-size: 0.72rem;
+  color: var(--quiet);
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: 0.3rem;
+  padding: 0.12rem 0.45rem;
+  cursor: pointer;
+}
+.contexthead::before {
+  content: "b8  ";
+}
+.context.open .contexthead::before {
+  content: "be  ";
+}
+.bars {
+  display: none;
+  margin-top: 0.4rem;
+  border: 1px solid var(--line);
+  border-radius: 0.3rem;
+  overflow: hidden;
+}
+.context.open .bars {
+  display: block;
+}
+.bar {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.3rem 0.5rem;
+  border-bottom: 1px solid var(--line);
+  font-family: ui-monospace, monospace;
+  font-size: 0.72rem;
+  min-height: calc(1.1rem + var(--share) * 0.14);
+  background: linear-gradient(to right, var(--tint) var(--share), transparent var(--share));
+}
+.bar:last-child {
+  border-bottom: none;
+}
+.bar.system {
+  --tint: color-mix(in srgb, var(--block-system) 32%, transparent);
+}
+.bar.user {
+  --tint: color-mix(in srgb, var(--block-user) 32%, transparent);
+}
+.bar.assistant {
+  --tint: color-mix(in srgb, var(--block-me) 32%, transparent);
+}
+.barname {
+  color: var(--ink);
+}
+.barsize {
+  color: var(--quiet);
+  font-variant-numeric: tabular-nums;
+}
+.bartext {
+  display: none;
+  grid-column: 1 / -1;
+  margin: 0.3rem 0 0;
+  padding: 0.4rem;
+  max-height: 11rem;
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  background: var(--page);
+  border-radius: 0.25rem;
+  color: var(--quiet);
+  font-size: 0.7rem;
+}
+.context.open .bar:hover .bartext,
+.bar:focus-within .bartext {
+  display: block;
 }

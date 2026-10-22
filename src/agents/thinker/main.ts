@@ -4,6 +4,7 @@ import { askOllama, type Spoken } from "../../common/ask_ollama.ts";
 import { makeRecord, type Record } from "../../common/make_record.ts";
 import config from "./config.json" with { type: "json" };
 import { answerOnly } from "./modules/answer_only.ts";
+import { nameBlocks } from "./modules/name_blocks.ts";
 import { pickRung, type Rung } from "./modules/pick_rung.ts";
 
 export const settings = config;
@@ -53,10 +54,17 @@ export async function run(task: {
     const why = judged === "long" ? config.too_long_reason : config.no_talk_reason;
     return makeRecord(false, why, config.agent, rung.model, start, { climb: true });
   }
+  const sent = [
+    { role: "system", content: asked },
+    ...history,
+    { role: "user", content: task.text },
+  ];
+  const blocks = nameBlocks(sent, config.blocks);
+  const room = rung.budget;
   const got = await askOllama(
     config.host,
     rung.model,
-    [{ role: "system", content: asked }, ...history, { role: "user", content: task.text }],
+    sent,
     rung.num_predict,
     `${harness.idle_ms}ms`,
   );
@@ -81,5 +89,9 @@ export async function run(task: {
       climb: true,
     });
   }
-  return makeRecord(true, config.allowed_reason, config.agent, rung.model, start, { text: words });
+  return makeRecord(true, config.allowed_reason, config.agent, rung.model, start, {
+    text: words,
+    sent: blocks,
+    room,
+  });
 }

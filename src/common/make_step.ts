@@ -1,10 +1,14 @@
 // Builds the file a workflow leaves behind, so the next one finds its work the same way every time.
+export type Block = { name: string; role: string; chars: number; text: string };
+
 export type Said = {
   agent: string;
   model: string;
   reason: string;
   text: string;
   seconds: number;
+  sent?: Block[];
+  room?: number;
 };
 
 export type Step = {
