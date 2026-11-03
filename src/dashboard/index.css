@@ -1,0 +1,95 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    font-family: "Segoe UI", system-ui, sans-serif;
+    color: #18181b;
+    background: #fafafa;
+}
+
+header {
+    height: 56px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 20px;
+    background: #18181b;
+    color: #fff;
+}
+
+#mark {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    background: #22c55e;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+#layout {
+    flex: 1;
+    display: flex;
+    min-height: 0;
+}
+
+#sidebar {
+    width: 200px;
+    flex-shrink: 0;
+    padding: 16px;
+    background: #f4f4f5;
+    border-right: 1px solid #e4e4e7;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    overflow-y: auto;
+}
+
+#sidebar button {
+    padding: 10px 12px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    text-align: left;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+#sidebar button:hover {
+    background: #e4e4e7;
+}
+
+#sidebar button.active {
+    background: #18181b;
+    color: #fff;
+}
+
+#content {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+    align-content: start;
+}
+
+.block {
+    height: 140px;
+    border-radius: 10px;
+    display: flex;
+    align-items: flex-end;
+    padding: 12px;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+}

@@ -1,0 +1,28 @@
+{
+  "name": "harness-master",
+  "version": "1.0.0",
+  "description": "A basic AI engineering practice",
+  "license": "ISC",
+  "author": "Rahul Ram",
+  "type": "module",
+  "main": "dist/init.js",
+  "scripts": {
+    "dev": "npm run watch",
+    "watch": "tsx watch --include \"src/**/*.ts\" src/init.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/ws": "^8.18.2",
+    "tsx": "^4.23.15"
+  },
+  "dependencies": {
+    "@huggingface/hub": "^2.17.9",
+    "@huggingface/transformers": "^4.3.1",
+    "@types/cors": "^2.8.19",
+    "cors": "^2.8.6",
+    "dotenv": "^18.0.9",
+    "express": "^5.3.0",
+    "ws": "^8.22.0"
+  }
+}
